@@ -60,7 +60,7 @@ export default function Messages() {
 
     try {
       // 1. Envoyer l'email via Edge Function
-      const { error: fnError } = await supabase.functions.invoke("send-email", {
+      const { error: fnError } = await supabase.functions.invoke("send-mail", {
         body: {
           to: selected.email,
           subject: `Re: ${selected.subject || "Votre demande NM Therapy"}`,
