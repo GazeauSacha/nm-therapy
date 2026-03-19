@@ -12,7 +12,6 @@ export default function Messages() {
   useEffect(() => {
     loadContacts()
 
-    // Realtime: new messages
     const sub = supabase.channel('contacts-channel')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'contacts' }, payload => {
         setContacts(prev => [payload.new, ...prev])
