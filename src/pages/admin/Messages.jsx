@@ -48,12 +48,10 @@ export default function Messages() {
 
   async function createRdvFromContact() {
     if (!selected) return;
-    // Navigate to appointments with pre-filled data
     alert(
       `Fonctionnalité : Créer un RDV pour ${selected.first_name} ${selected.last_name}\nVous pouvez aller dans Rendez-vous > Nouveau RDV.`,
     );
   }
-
 
   async function sendReply(e) {
     e.preventDefault();
@@ -62,34 +60,22 @@ export default function Messages() {
 
     try {
       // 1. Envoyer l'email via Edge Function
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      const res = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-email`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${session.access_token}`,
-          },
-          body: JSON.stringify({
-            to: selected.email,
-            subject: `Re: ${selected.subject || "Votre demande NM Therapy"}`,
-            html: `
-          <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; color: #333;">
-            <p>Bonjour ${selected.first_name},</p>
-            <div style="white-space: pre-wrap; line-height: 1.7;">${reply}</div>
-            <br/>
-            <p style="color: #888; font-size: 0.85em;">— Nancy Massaoudi · NM Therapy</p>
-          </div>
-        `,
-          }),
+      const { error: fnError } = await supabase.functions.invoke("send-email", {
+        body: {
+          to: selected.email,
+          subject: `Re: ${selected.subject || "Votre demande NM Therapy"}`,
+          html: `
+            <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; color: #333;">
+              <p>Bonjour ${selected.first_name},</p>
+              <div style="white-space: pre-wrap; line-height: 1.7;">${reply}</div>
+              <br/>
+              <p style="color: #888; font-size: 0.85em;">— Nancy Massaoudi · NM Therapy</p>
+            </div>
+          `,
         },
-      );
+      });
 
-      if (!res.ok) throw new Error("Erreur envoi email");
+      if (fnError) throw new Error(fnError.message);
 
       // 2. Sauvegarder la réponse en DB
       await supabase.from("replies").insert([
