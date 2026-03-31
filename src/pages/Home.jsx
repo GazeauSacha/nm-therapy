@@ -58,6 +58,7 @@ export default function Home() {
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
   const [formError, setFormError] = useState('')
+  const [menuOpen, setMenuOpen] = useState(false)
 
   // Scroll reveal
   useEffect(() => {
@@ -111,8 +112,32 @@ export default function Home() {
           <li><a href="#tarifs" onClick={e => { e.preventDefault(); scrollTo('tarifs') }}>Tarifs</a></li>
           <li><a href="#contact" onClick={e => { e.preventDefault(); scrollTo('contact') }}>Contact</a></li>
         </ul>
-        <a href="#contact" className={s.navCta} onClick={e => { e.preventDefault(); scrollTo('contact') }}>Prendre Rendez-vous</a>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <a href="#contact" className={s.navCta} onClick={e => { e.preventDefault(); scrollTo('contact') }}>Prendre Rendez-vous</a>
+          <button
+            className={`${s.hamburger} ${menuOpen ? s.hamburgerOpen : ''}`}
+            onClick={() => setMenuOpen(o => !o)}
+            aria-label="Menu"
+          >
+            <span /><span /><span />
+          </button>
+        </div>
       </nav>
+
+      {/* MOBILE MENU */}
+      {menuOpen && (
+        <div className={s.mobileMenu}>
+          {[['about','À Propos'],['services','Activités'],['approche','Approche'],['tarifs','Tarifs'],['contact','Contact']].map(([id, label]) => (
+            <a key={id} href={`#${id}`} className={s.mobileMenuLink}
+              onClick={e => { e.preventDefault(); setMenuOpen(false); setTimeout(() => scrollTo(id), 100) }}>
+              {label}
+            </a>
+          ))}
+          <button className={s.mobileMenuCta} onClick={() => { setMenuOpen(false); setTimeout(() => scrollTo('contact'), 100) }}>
+            Prendre Rendez-vous
+          </button>
+        </div>
+      )}
 
       {/* HERO */}
       <section className={s.hero}>

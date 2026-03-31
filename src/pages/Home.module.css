@@ -150,16 +150,64 @@
 .footerCol ul a:hover { color: var(--clay-light); }
 .footerBottom { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; }
 
-/* ── RESPONSIVE ── */
+/* ── HAMBURGER ── */
+.hamburger { display: none; flex-direction: column; justify-content: center; gap: 5px; background: none; border: none; cursor: pointer; padding: 0.4rem; }
+.hamburger span { display: block; width: 22px; height: 1.5px; background: var(--charcoal); border-radius: 2px; transition: all 0.3s ease; }
+.hamburgerOpen span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+.hamburgerOpen span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.hamburgerOpen span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+/* ── MOBILE MENU ── */
+.mobileMenu { position: fixed; inset: 0; background: var(--warm-white); z-index: 105; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2.5rem; animation: fadeDown 0.25s ease; }
+.mobileMenuLink { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 300; color: var(--charcoal); text-decoration: none; letter-spacing: 0.04em; transition: color 0.3s; }
+.mobileMenuLink:hover, .mobileMenuLink:active { color: var(--clay); }
+.mobileMenuCta { margin-top: 0.5rem; font-size: 0.8rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--warm-white); background: var(--clay); border: none; cursor: pointer; padding: 1rem 2.5rem; font-family: 'Jost', sans-serif; border-radius: 2px; }
+
+/* ── RESPONSIVE 1024px ── */
 @media (max-width: 1024px) {
-  .nav { padding: 1.5rem 2rem; }
+  .nav { padding: 1.2rem 2rem; }
   .navLinks { display: none; }
-  .hero, .about, .contact, .process, .distanciel { grid-template-columns: 1fr; }
-  .heroLeft { padding: 8rem 2rem 4rem; }
+  .hamburger { display: flex; }
+  .hero { grid-template-columns: 1fr; }
+  .heroLeft { padding: 7rem 2rem 3rem; }
   .heroRight { display: none; }
-  .servicesGrid, .pricingCards { grid-template-columns: 1fr; }
-  .services, .pricing, .contact, .process, .distanciel { padding: 5rem 2rem; }
+  .about { grid-template-columns: 1fr; }
   .aboutContent { padding: 3rem 2rem; }
+  .servicesGrid { grid-template-columns: repeat(2, 1fr); }
+  .services { padding: 5rem 2rem; }
+  .distanciel { grid-template-columns: 1fr; padding: 4rem 2rem; gap: 2rem; }
+  .process { grid-template-columns: 1fr; padding: 5rem 2rem; gap: 0; }
+  .processVisual { display: none; }
+  .pricingCards { grid-template-columns: 1fr; max-width: 480px; }
+  .pricing { padding: 5rem 2rem; }
+  .contact { grid-template-columns: 1fr; padding: 5rem 2rem; gap: 3rem; }
   .footerMain { grid-template-columns: 1fr 1fr; }
+  .footer { padding: 4rem 2rem 2rem; }
   .formRow { grid-template-columns: 1fr; }
+}
+
+/* ── RESPONSIVE 640px (mobile) ── */
+@media (max-width: 640px) {
+  .nav { padding: 1rem 1.5rem; }
+  .navCta { display: none; }
+  .heroLeft { padding: 6rem 1.5rem 3rem; }
+  .heroTitle { font-size: clamp(2rem, 9vw, 2.8rem); }
+  .heroQuote { font-size: 0.95rem; }
+  .heroSub { font-size: 0.88rem; }
+  .heroActions { flex-direction: column; align-items: flex-start; gap: 0.8rem; }
+  .btnPrimary, .btnGhost { padding: 0.9rem 2rem; font-size: 0.78rem; width: 100%; text-align: center; display: block; }
+  .aboutVisual { min-height: 200px; }
+  .servicesGrid { grid-template-columns: 1fr; }
+  .services { padding: 3.5rem 1.5rem; }
+  .serviceCard { padding: 2rem 1.5rem; }
+  .distanciel { padding: 3.5rem 1.5rem; }
+  .distancielTitle { font-size: 1.8rem; }
+  .process { padding: 3.5rem 1.5rem; }
+  .pricing { padding: 3.5rem 1.5rem; }
+  .pricingCards { max-width: 100%; }
+  .contact { padding: 3.5rem 1.5rem; gap: 2.5rem; }
+  .contactForm { padding: 1.5rem; }
+  .footer { padding: 3rem 1.5rem 1.5rem; }
+  .footerMain { grid-template-columns: 1fr; gap: 2rem; }
+  .footerBottom { flex-direction: column; gap: 0.5rem; text-align: center; }
 }

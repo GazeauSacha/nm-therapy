@@ -34,3 +34,8 @@ button { font-family: 'Jost', sans-serif; cursor: pointer; }
 @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 @keyframes scaleIn { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 @keyframes fadeInPage { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── ADMIN RESPONSIVE ── */
+@media (max-width: 768px) {
+  .admin-topbar { padding-left: 4rem !important; }
+}

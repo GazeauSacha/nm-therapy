@@ -18,6 +18,18 @@ export default function AdminLayout() {
   const navigate = useNavigate()
   const [unreadMsg, setUnreadMsg] = useState(0)
   const [pendingRdv, setPendingRdv] = useState(0)
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth <= 768
+      setIsMobile(mobile)
+      if (!mobile) setSidebarOpen(false)
+    }
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   useEffect(() => {
     // Count unread messages
@@ -48,7 +60,10 @@ export default function AdminLayout() {
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: '#F1EDE6' }}>
       {/* Sidebar */}
-      <aside style={styles.sidebar}>
+      <aside style={{
+        ...styles.sidebar,
+        ...(isMobile ? { transform: sidebarOpen ? 'translateX(0)' : 'translateX(-260px)', transition: 'transform 0.3s ease' } : {}),
+      }}>
         <div style={styles.sidebarLogo}>
           <div style={styles.brand}>NM <span style={{ color: 'var(--sage-light)', fontStyle: 'italic' }}>Therapy</span></div>
           <div style={styles.adminTag}>Administration</div>
@@ -57,13 +72,13 @@ export default function AdminLayout() {
         <nav style={styles.sidebarNav}>
           <div style={styles.navSectionLabel}>Principal</div>
           {navItems.slice(0, 4).map(item => (
-            <NavItem key={item.to} item={item} badge={item.badge ? badges[item.badge] : 0} />
+            <NavItem key={item.to} item={item} badge={item.badge ? badges[item.badge] : 0} onNavigate={() => setSidebarOpen(false)} />
           ))}
           <div style={{ ...styles.navSectionLabel, marginTop: '1rem' }}>Finances</div>
-          <NavItem item={navItems[4]} badge={0} />
+          <NavItem item={navItems[4]} badge={0} onNavigate={() => setSidebarOpen(false)} />
           <div style={{ ...styles.navSectionLabel, marginTop: '1rem' }}>Paramètres</div>
           {navItems.slice(5).map(item => (
-            <NavItem key={item.to} item={item} badge={0} />
+            <NavItem key={item.to} item={item} badge={0} onNavigate={() => setSidebarOpen(false)} />
           ))}
         </nav>
 
@@ -81,8 +96,34 @@ export default function AdminLayout() {
         </div>
       </aside>
 
+      {/* Mobile overlay */}
+      {isMobile && sidebarOpen && (
+        <div
+          onClick={() => setSidebarOpen(false)}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(44,44,44,0.5)', zIndex: 49 }}
+        />
+      )}
+
+      {/* Mobile hamburger */}
+      {isMobile && (
+        <button
+          onClick={() => setSidebarOpen(o => !o)}
+          style={{
+            position: 'fixed', top: '0.85rem', left: '0.85rem', zIndex: 60,
+            background: 'var(--charcoal)', border: 'none', cursor: 'pointer',
+            padding: '0.55rem 0.6rem', borderRadius: 4,
+            display: 'flex', flexDirection: 'column', gap: 5, alignItems: 'center',
+          }}
+          aria-label="Menu"
+        >
+          <span style={{ display: 'block', width: 20, height: 1.5, background: 'rgba(255,255,255,0.8)', borderRadius: 2, transition: 'all 0.3s', transform: sidebarOpen ? 'translateY(6.5px) rotate(45deg)' : 'none' }} />
+          <span style={{ display: 'block', width: 20, height: 1.5, background: 'rgba(255,255,255,0.8)', borderRadius: 2, transition: 'all 0.3s', opacity: sidebarOpen ? 0 : 1 }} />
+          <span style={{ display: 'block', width: 20, height: 1.5, background: 'rgba(255,255,255,0.8)', borderRadius: 2, transition: 'all 0.3s', transform: sidebarOpen ? 'translateY(-6.5px) rotate(-45deg)' : 'none' }} />
+        </button>
+      )}
+
       {/* Main */}
-      <main style={{ marginLeft: 260, flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <main style={{ marginLeft: isMobile ? 0 : 260, flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <div style={{ animation: 'fadeInPage 0.3s ease' }}>
           <Outlet context={{ unreadMsg, pendingRdv }} />
         </div>
@@ -91,10 +132,11 @@ export default function AdminLayout() {
   )
 }
 
-function NavItem({ item, badge }) {
+function NavItem({ item, badge, onNavigate }) {
   return (
     <NavLink
       to={item.to}
+      onClick={onNavigate}
       style={({ isActive }) => ({
         ...styles.navItem,
         ...(isActive ? styles.navItemActive : {}),

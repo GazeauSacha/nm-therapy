@@ -6,7 +6,7 @@ export default function Topbar({ title, subtitle }) {
   })
 
   return (
-    <div style={styles.topbar}>
+    <div style={styles.topbar} className="admin-topbar">
       <div>
         <div style={styles.title}>{title}</div>
         {subtitle && <div style={styles.sub}>{subtitle}</div>}
