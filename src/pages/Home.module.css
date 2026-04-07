@@ -46,7 +46,7 @@
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--warm-white);
-  background: var(--sage);
+  background: #4a6840;
   border: none;
   cursor: pointer;
   padding: 0.75rem 1.6rem;
@@ -55,7 +55,7 @@
   font-family: "Jost", sans-serif;
 }
 .navCta:hover {
-  background: var(--clay);
+  background: var(--charcoal);
 }
 
 /* ── HERO ── */
@@ -216,7 +216,7 @@
   font-size: 0.75rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--clay);
+  color: #7a5035;
 }
 
 /* ── TICKER (banderolle défilante) ── */
@@ -894,7 +894,7 @@
 /* ── FOOTER ── */
 .footer {
   background: var(--charcoal);
-  color: rgba(253, 251, 247, 0.5);
+  color: rgba(253, 251, 247, 0.65);
   padding: 4rem 6rem 2rem;
 }
 .footerMain {
@@ -924,15 +924,16 @@
 }
 .footerTva {
   font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.55);
   margin-top: 1rem;
 }
-.footerCol h4 {
+.footerCol h3 {
   font-size: 0.7rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--warm-white);
   margin-bottom: 1.2rem;
+  font-weight: 400;
 }
 .footerCol ul {
   list-style: none;
@@ -943,7 +944,7 @@
 .footerCol ul a {
   font-size: 0.85rem;
   font-weight: 300;
-  color: rgba(253, 251, 247, 0.5);
+  color: rgba(253, 251, 247, 0.65);
   text-decoration: none;
   transition: color 0.3s;
 }

@@ -221,6 +221,7 @@ export default function Home() {
   return (
     <div>
       {/* NAV */}
+      <header>
       <nav className={s.nav}>
         <a href="#" className={s.navLogo}>
           Nancy M <span>Therapy</span>
@@ -319,6 +320,7 @@ export default function Home() {
           </button>
         </div>
       </nav>
+      </header>
 
       {/* MOBILE MENU */}
       {menuOpen && (
@@ -376,6 +378,9 @@ export default function Home() {
           </button>
         </div>
       )}
+
+      {/* MAIN CONTENT */}
+      <main>
 
       {/* HERO */}
       <section className={s.hero}>
@@ -441,7 +446,7 @@ export default function Home() {
         <div className={s.aboutVisual}>
           <div style={{ position: "relative" }}>
             <div className={s.portraitFrame}>
-              <img src="/image/image1.jpeg" alt="" />
+              <img src="/image/image1.jpeg" alt="Nancy M, coach et thérapeute" width="440" height="660" />
             </div>
             <div className={s.aboutBadge}>
               <span>8+</span>
@@ -873,6 +878,8 @@ export default function Home() {
         </form>
       </section>
 
+      </main>
+
       {/* FOOTER */}
       <footer className={s.footer}>
         <div className={s.footerMain}>
@@ -884,7 +891,7 @@ export default function Home() {
             <p className={s.footerTva}>{t("footer.tva")}</p>
           </div>
           <div className={s.footerCol}>
-            <h4>{t("footer.col_activities")}</h4>
+            <h3>{t("footer.col_activities")}</h3>
             <ul>
               {[
                 "Life Coaching",
@@ -909,7 +916,7 @@ export default function Home() {
             </ul>
           </div>
           <div className={s.footerCol}>
-            <h4>{t("footer.col_navigation")}</h4>
+            <h3>{t("footer.col_navigation")}</h3>
             <ul>
               {[
                 ["about", t("footer.link_about")],
@@ -932,7 +939,7 @@ export default function Home() {
             </ul>
           </div>
           <div className={s.footerCol}>
-            <h4>{t("footer.col_contact")}</h4>
+            <h3>{t("footer.col_contact")}</h3>
             <ul>
               <li>
                 <a href={phoneHref}>{phone}</a>
