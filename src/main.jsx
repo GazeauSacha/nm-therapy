@@ -1,6 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import './i18n'
 import './index.css'
 
 import Home from './pages/Home'
@@ -12,6 +13,7 @@ import Clients from './pages/admin/Clients'
 import Messages from './pages/admin/Messages'
 import Finances from './pages/admin/Finances'
 import SiteContent from './pages/admin/SiteContent'
+import Formations from './pages/admin/Formations'
 import Settings from './pages/admin/Settings'
 import { AuthProvider } from './hooks/useAuth'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -36,6 +38,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
             <Route path="messages" element={<Messages />} />
             <Route path="finances" element={<Finances />} />
             <Route path="site" element={<SiteContent />} />
+            <Route path="formations" element={<Formations />} />
             <Route path="settings" element={<Settings />} />
           </Route>
         </Routes>

@@ -3,18 +3,28 @@ import { supabase } from '../../lib/supabase'
 import Topbar from '../../components/Topbar'
 
 const DEFAULTS = {
-  hero_title: 'Nancy Massaoudi',
-  hero_subtitle: 'NM Therapy',
-  hero_tagline: "Life & Love Coaching, Hypnothérapie, Thérapie de couple, EMDR, Sexothérapie et guidance intuitive — une boîte à outils complète pour vous accompagner.",
+  hero_title: 'Nancy M.',
+  hero_subtitle: 'Nancy M Therapy',
   hero_quote: "On ne fait pas un travail sur soi pour changer, on fait un travail sur soi pour devenir soi-même.",
-  about_text_1: "Je suis Nancy Massaoudi, coach de vie et thérapeute. Ma vocation est de vous accompagner dans votre transformation personnelle, amoureuse et familiale avec bienveillance et précision.",
+  hero_tagline: "Life & Love Coaching, Hypnothérapie, Thérapie de couple, EMDR, Sexothérapie et guidance intuitive — une boîte à outils complète pour vous accompagner.",
+  about_text_1: "Je suis Nancy M., coach de vie et thérapeute. Ma vocation est de vous accompagner dans votre transformation personnelle, amoureuse et familiale avec bienveillance et précision.",
   about_text_2: "Pour retrouver l'équilibre et le bien-être, contactez-moi. Car j'ai une boîte à outils bien remplie qui ne cesse de s'étoffer.",
-  pricing_note: "Séance individuelle : 45 min à 1h30. Tarifs flexibles selon votre situation personnelle et professionnelle.",
   cancellation_policy: "Si vous ne pouvez pas assister à votre séance, merci de la déprogrammer au moins 48 heures à l'avance. Dans le cas contraire, elle vous sera facturée.",
+  pricing_note: "Séance individuelle : 45 min à 1h30. Tarifs flexibles selon votre situation personnelle et professionnelle.",
   contact_phone: '0495 65 01 30',
   contact_email: 'nancymtherapy@gmail.com',
   site_visible: 'true',
   form_active: 'true',
+  ticker_items: 'Life & Love Coaching|Hypnothérapie|EMDR|Thérapie de couple & famille|Sexothérapie|Psycho-Trauma|Guidance intuitive|Constellation familiale|Distanciel · Meet · Zoom · WhatsApp',
+  ticker_speed: 'normal',
+  // NL variants
+  hero_title_nl: '',
+  hero_subtitle_nl: '',
+  hero_quote_nl: '',
+  hero_tagline_nl: '',
+  about_text_1_nl: '',
+  about_text_2_nl: '',
+  cancellation_policy_nl: '',
 }
 
 export default function SiteContent() {
@@ -22,6 +32,7 @@ export default function SiteContent() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [langTab, setLangTab] = useState('fr')
 
   useEffect(() => {
     async function load() {
@@ -40,61 +51,100 @@ export default function SiteContent() {
     e.preventDefault()
     setSaving(true)
     const rows = Object.entries(fields).map(([key, value]) => ({ key, value }))
-
-    // Upsert all rows
     const { error } = await supabase.from('site_content').upsert(rows, { onConflict: 'key' })
     setSaving(false)
     if (!error) { setSaved(true); setTimeout(() => setSaved(false), 3000) }
   }
 
-  const set = (key) => (e) => setFields(prev => ({ ...prev, [key]: e.target.value || e.target.checked?.toString() }))
+  const set = (key) => (e) => setFields(prev => ({ ...prev, [key]: e.target.value }))
   const toggle = (key) => () => setFields(prev => ({ ...prev, [key]: prev[key] === 'true' ? 'false' : 'true' }))
 
   if (loading) return <div style={{ padding: '3rem', color: 'var(--mist)' }}>Chargement…</div>
 
+  const isFr = langTab === 'fr'
+
   return (
     <div>
-      <Topbar title="Contenu du site" subtitle="Modifiez les textes et paramètres affichés sur votre site public." />
+      <Topbar title="Contenu du site" subtitle="Modifiez les textes affichés sur votre site public." />
       <div style={{ padding: '2rem' }}>
+
+        {/* Language tab */}
+        <div style={s.langTabs}>
+          <button style={{ ...s.langTab, ...(isFr ? s.langTabActive : {}) }} onClick={() => setLangTab('fr')} type="button">
+            🇫🇷 Français
+          </button>
+          <button style={{ ...s.langTab, ...(!isFr ? s.langTabActive : {}) }} onClick={() => setLangTab('nl')} type="button">
+            🇧🇪 Nederlands
+          </button>
+          {!isFr && (
+            <span style={{ fontSize: '0.75rem', color: 'var(--mist)', fontStyle: 'italic', marginLeft: '0.5rem' }}>
+              Laissez vide pour utiliser le texte FR par défaut
+            </span>
+          )}
+        </div>
+
         <form onSubmit={saveAll}>
           <div style={s.grid}>
 
             {/* Hero */}
-            <Section title="Section Hero">
-              <Fg label="Nom affiché (titre principal)" value={fields.hero_title} onChange={set('hero_title')} />
-              <Fg label="Sous-titre / marque" value={fields.hero_subtitle} onChange={set('hero_subtitle')} />
-              <Fg label="Citation hero" value={fields.hero_quote} onChange={set('hero_quote')} textarea />
-              <Fg label="Texte descriptif hero" value={fields.hero_tagline} onChange={set('hero_tagline')} textarea />
+            <Section title={isFr ? 'Section Hero (FR)' : 'Section Hero (NL)'}>
+              <Fg label="Nom affiché (titre principal)" value={isFr ? fields.hero_title : fields.hero_title_nl} onChange={set(isFr ? 'hero_title' : 'hero_title_nl')} />
+              <Fg label="Sous-titre / marque" value={isFr ? fields.hero_subtitle : fields.hero_subtitle_nl} onChange={set(isFr ? 'hero_subtitle' : 'hero_subtitle_nl')} />
+              <Fg label="Citation hero" value={isFr ? fields.hero_quote : fields.hero_quote_nl} onChange={set(isFr ? 'hero_quote' : 'hero_quote_nl')} textarea />
+              <Fg label="Texte descriptif hero" value={isFr ? fields.hero_tagline : fields.hero_tagline_nl} onChange={set(isFr ? 'hero_tagline' : 'hero_tagline_nl')} textarea />
             </Section>
 
             {/* À propos */}
-            <Section title="À Propos">
-              <Fg label="Paragraphe 1" value={fields.about_text_1} onChange={set('about_text_1')} textarea />
-              <Fg label="Paragraphe 2" value={fields.about_text_2} onChange={set('about_text_2')} textarea />
+            <Section title={isFr ? 'À Propos (FR)' : 'À Propos (NL)'}>
+              <Fg label="Paragraphe 1" value={isFr ? fields.about_text_1 : fields.about_text_1_nl} onChange={set(isFr ? 'about_text_1' : 'about_text_1_nl')} textarea />
+              <Fg label="Paragraphe 2" value={isFr ? fields.about_text_2 : fields.about_text_2_nl} onChange={set(isFr ? 'about_text_2' : 'about_text_2_nl')} textarea />
             </Section>
 
-            {/* Tarifs & Contact */}
-            <Section title="Tarifs & Politique d'annulation">
-              <Fg label="Note sur les tarifs" value={fields.pricing_note} onChange={set('pricing_note')} textarea />
-              <Fg label="Politique d'annulation" value={fields.cancellation_policy} onChange={set('cancellation_policy')} textarea />
+            {/* Ticker — uniquement en FR */}
+            {isFr && (
+              <Section title="Bandeau défilant (ticker)">
+                <Fg label="Phrases du ticker (séparées par |)" value={fields.ticker_items} onChange={set('ticker_items')} textarea />
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={s.label}>Vitesse de défilement</label>
+                  <select style={s.input} value={fields.ticker_speed} onChange={set('ticker_speed')}>
+                    <option value="slow">Lent</option>
+                    <option value="normal">Normal</option>
+                    <option value="fast">Rapide</option>
+                  </select>
+                </div>
+              </Section>
+            )}
+
+            {/* Tarifs & Annulation */}
+            <Section title={isFr ? "Politique d'annulation (FR)" : "Annuleringsbeleid (NL)"}>
+              {isFr && <Fg label="Note sur les tarifs" value={fields.pricing_note} onChange={set('pricing_note')} textarea />}
+              <Fg
+                label={isFr ? "Politique d'annulation" : "Annuleringsbeleid"}
+                value={isFr ? fields.cancellation_policy : fields.cancellation_policy_nl}
+                onChange={set(isFr ? 'cancellation_policy' : 'cancellation_policy_nl')}
+                textarea
+              />
             </Section>
 
-            {/* Contact */}
-            <Section title="Coordonnées">
-              <Fg label="Téléphone" value={fields.contact_phone} onChange={set('contact_phone')} />
-              <Fg label="Email" value={fields.contact_email} onChange={set('contact_email')} />
-            </Section>
-
+            {/* Coordonnées — uniquement en FR */}
+            {isFr && (
+              <Section title="Coordonnées">
+                <Fg label="Téléphone" value={fields.contact_phone} onChange={set('contact_phone')} />
+                <Fg label="Email" value={fields.contact_email} onChange={set('contact_email')} />
+              </Section>
+            )}
           </div>
 
-          {/* Toggles */}
-          <div style={s.toggleCard}>
-            <div style={s.toggleCardTitle}>Paramètres d'affichage</div>
-            <div style={s.toggleGrid}>
-              <Toggle label="Site en ligne" on={fields.site_visible === 'true'} onClick={toggle('site_visible')} />
-              <Toggle label="Formulaire de contact actif" on={fields.form_active === 'true'} onClick={toggle('form_active')} />
+          {/* Toggles — uniquement en FR */}
+          {isFr && (
+            <div style={s.toggleCard}>
+              <div style={s.toggleCardTitle}>Paramètres d'affichage</div>
+              <div style={s.toggleGrid}>
+                <Toggle label="Site en ligne" on={fields.site_visible === 'true'} onClick={toggle('site_visible')} />
+                <Toggle label="Formulaire de contact actif" on={fields.form_active === 'true'} onClick={toggle('form_active')} />
+              </div>
             </div>
-          </div>
+          )}
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '1.5rem' }}>
             <button type="submit" style={btn} disabled={saving}>
@@ -122,8 +172,8 @@ function Fg({ label, value, onChange, textarea }) {
     <div style={{ marginBottom: '1rem' }}>
       <label style={s.label}>{label}</label>
       {textarea
-        ? <textarea style={{ ...s.input, resize: 'vertical' }} rows={3} value={value} onChange={onChange} />
-        : <input type="text" style={s.input} value={value} onChange={onChange} />}
+        ? <textarea style={{ ...s.input, resize: 'vertical' }} rows={3} value={value || ''} onChange={onChange} />
+        : <input type="text" style={s.input} value={value || ''} onChange={onChange} />}
     </div>
   )
 }
@@ -150,4 +200,7 @@ const s = {
   toggleCard: { background: 'var(--warm-white)', borderRadius: 6, padding: '2rem', border: '1px solid rgba(139,158,126,0.15)' },
   toggleCardTitle: { fontSize: '0.82rem', fontWeight: 500, color: 'var(--charcoal)', marginBottom: '1.2rem', paddingBottom: '0.75rem', borderBottom: '1px solid rgba(139,158,126,0.1)' },
   toggleGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' },
+  langTabs: { display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' },
+  langTab: { background: 'transparent', border: '1px solid rgba(139,158,126,0.3)', borderRadius: 4, padding: '0.5rem 1.2rem', fontFamily: 'Jost, sans-serif', fontSize: '0.78rem', cursor: 'pointer', color: 'var(--mist)', transition: 'all 0.2s' },
+  langTabActive: { background: 'var(--charcoal)', color: 'var(--warm-white)', borderColor: 'var(--charcoal)' },
 }
