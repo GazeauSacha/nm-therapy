@@ -345,20 +345,6 @@ export default function Home() {
                 <input type="tel" value={formData.telephone} onChange={e => setFormData(p => ({ ...p, telephone: e.target.value }))} placeholder="0495 XX XX XX" />
               </div>
               <div className={s.formGroup}>
-                <label>Motif de la demande</label>
-                <select value={formData.motif} onChange={e => setFormData(p => ({ ...p, motif: e.target.value }))}>
-                  <option value="">Choisissez un accompagnement...</option>
-                  <option>Life Coaching</option>
-                  <option>Love Coaching</option>
-                  <option>Hypnose Thérapeutique</option>
-                  <option>Thérapie de couple / famille</option>
-                  <option>Sexothérapie</option>
-                  <option>EMDR / Psycho-Trauma</option>
-                  <option>Guidance intuitive</option>
-                  <option>Je ne sais pas encore</option>
-                </select>
-              </div>
-              <div className={s.formGroup}>
                 <label>Message</label>
                 <textarea value={formData.message} onChange={e => setFormData(p => ({ ...p, message: e.target.value }))} placeholder="Partagez brièvement ce qui vous amène…" rows={4} />
               </div>
