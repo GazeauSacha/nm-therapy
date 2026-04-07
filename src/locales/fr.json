@@ -77,10 +77,10 @@
     "title_2": "selon votre situation",
     "subtitle": "Adaptés en fonction de votre situation personnelle et professionnelle.",
     "card1_label": "Séance individuelle",
-    "card1_price": "Sur devis",
+    "card1_price": "Sur rendez-vous",
     "card1_detail": "Entre 45 min et 1h30 selon le besoin et l'approche utilisée (coaching, hypnose, EMDR, guidance…)",
     "card1_note": "Tarif adapté à votre situation — discutons-en lors d'un premier échange.",
-    "card1_btn": "Demander un devis",
+    "card1_btn": "Prendre Contact",
     "card2_label": "Thérapie de couple",
     "card2_price": "7 séances",
     "card2_detail": "Programme incluant 7 séances (dont 2 individuelles) pour retrouver la complicité et reconstruire une vraie équipe.",
@@ -112,7 +112,7 @@
     "disabled_text": "Contactez-moi directement par email ou téléphone."
   },
   "footer": {
-    "tagline": "Nancy M. — Coaching, hypnothérapie, thérapie de couple et guidance intuitive en distanciel.",
+    "tagline": "Nancy M. — Coaching, hypnothérapie, thérapie de couple et guidance  intuitive-cognitive en distanciel.",
     "tva": "TVA / BTW : BE0749.913.631",
     "col_activities": "Activités",
     "col_navigation": "Navigation",

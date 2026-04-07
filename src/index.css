@@ -37,5 +37,16 @@ button { font-family: 'Jost', sans-serif; cursor: pointer; }
 
 /* ── ADMIN RESPONSIVE ── */
 @media (max-width: 768px) {
-  .admin-topbar { padding-left: 4rem !important; }
+  .admin-topbar {
+    padding-left: 4rem !important;
+  }
+  /* Reduce page content padding on mobile */
+  .admin-page-content {
+    padding: 1rem !important;
+  }
+  /* Tables scroll horizontally */
+  .admin-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 }

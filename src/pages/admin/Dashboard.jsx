@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import Topbar from '../../components/Topbar'
 import { Link } from 'react-router-dom'
+import { useOutletContext } from 'react-router-dom'
 
 export default function Dashboard() {
+  const { isMobile } = useOutletContext()
   const [stats, setStats] = useState({ clients: 0, rdvMonth: 0, unread: 0, pending: 0 })
   const [recentContacts, setRecentContacts] = useState([])
   const [upcomingRdv, setUpcomingRdv] = useState([])
@@ -43,14 +45,14 @@ export default function Dashboard() {
       <Topbar title="Tableau de bord" subtitle="Bienvenue, Nancy. Voici votre résumé du jour." />
       <div style={s.content}>
         {/* Stats */}
-        <div style={s.statsGrid}>
+        <div style={{ ...s.statsGrid, gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)' }}>
           <StatCard label="Clients actifs" value={stats.clients} change="↑ suivi en cours" color="var(--sage)" />
           <StatCard label="RDV ce mois" value={stats.rdvMonth} change={`${stats.pending} en attente`} color="var(--clay)" />
           <StatCard label="Messages non lus" value={stats.unread} change="→ Voir les messages" color="var(--gold)" />
           <StatCard label="RDV à confirmer" value={stats.pending} change="Action requise" color="var(--charcoal)" />
         </div>
 
-        <div style={s.grid2}>
+        <div style={{ ...s.grid2, gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }}>
           {/* Prochains RDV */}
           <div style={s.card}>
             <div style={s.cardHeader}>

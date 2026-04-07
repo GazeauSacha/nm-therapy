@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import Topbar from "../../components/Topbar";
+import { useOutletContext } from "react-router-dom";
 
 const PLATFORMS = ['Google Meet', 'WhatsApp', 'Zoom', 'Présentiel']
 const SUBJECTS  = ['Life Coaching', 'Love Coaching', 'Hypnose Thérapeutique', 'Thérapie de couple', 'Sexothérapie', 'EMDR / Psycho-Trauma', 'Guidance intuitive']
 
 export default function Messages() {
+  const { isMobile } = useOutletContext()
   const [contacts, setContacts] = useState([]);
   const [selected, setSelected] = useState(null);
   const [replies, setReplies] = useState([]);
@@ -188,9 +190,9 @@ export default function Messages() {
         title="Messages"
         subtitle={`${unreadCount} message${unreadCount !== 1 ? "s" : ""} non lu${unreadCount !== 1 ? "s" : ""}`}
       />
-      <div style={s.layout}>
+      <div style={{ ...s.layout, gridTemplateColumns: isMobile ? '1fr' : '340px 1fr' }}>
         {/* List */}
-        <div style={s.list}>
+        <div style={{ ...s.list, display: isMobile && selected ? 'none' : undefined }}>
           <div style={s.listHeader}>
             <span style={s.listTitle}>Boîte de réception</span>
             {unreadCount > 0 && <span style={s.badge}>{unreadCount}</span>}
@@ -239,7 +241,15 @@ export default function Messages() {
         </div>
 
         {/* Detail */}
-        <div style={s.detail}>
+        <div style={{ ...s.detail, display: isMobile && !selected ? 'none' : 'flex' }}>
+          {isMobile && selected && (
+            <button
+              onClick={() => setSelected(null)}
+              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'none', border: 'none', padding: '0.75rem 1rem', fontSize: '0.82rem', color: 'var(--sage)', cursor: 'pointer', borderBottom: '1px solid rgba(139,158,126,0.12)', width: '100%' }}
+            >
+              ← Retour aux messages
+            </button>
+          )}
           {!selected ? (
             <div style={s.noSelect}>
               <div style={{ fontSize: "2rem", marginBottom: "1rem" }}>💬</div>

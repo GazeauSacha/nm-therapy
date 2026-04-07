@@ -193,27 +193,28 @@
 }
 .heroQuoteCard {
   position: absolute;
-  bottom: -2rem;
-  left: -3rem;
+  bottom: 10%;
+  left: -4rem;
   background: var(--ivory);
   border: 1px solid rgba(191, 160, 122, 0.3);
   border-radius: 4px;
-  padding: 1.8rem 2rem;
-  max-width: 300px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  padding: 2rem 2.4rem;
+  max-width: 380px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
   animation: floatCard 6s ease-in-out infinite;
+  z-index: 2;
 }
 .heroQuoteCard blockquote {
   font-family: "Cormorant Garamond", serif;
-  font-size: 1.05rem;
+  font-size: 1.2rem;
   font-style: italic;
   color: var(--charcoal);
-  line-height: 1.6;
-  margin-bottom: 0.8rem;
+  line-height: 1.65;
+  margin-bottom: 1rem;
 }
 .heroQuoteCard cite {
-  font-size: 0.72rem;
-  letter-spacing: 0.1em;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--clay);
 }

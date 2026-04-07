@@ -130,7 +130,7 @@ export default function AdminLayout() {
       {/* Main */}
       <main style={{ marginLeft: isMobile ? 0 : 260, flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <div style={{ animation: 'fadeInPage 0.3s ease' }}>
-          <Outlet context={{ unreadMsg, pendingRdv }} />
+          <Outlet context={{ unreadMsg, pendingRdv, isMobile }} />
         </div>
       </main>
     </div>
