@@ -192,7 +192,6 @@ export default function Home() {
         <div className={s.heroLeft}>
           <p className={s.heroEyebrow}>{t('hero.eyebrow')}</p>
           <h1 className={s.heroTitle}>
-            {c('hero_title')}<br />
             <em>{c('hero_subtitle')}</em>
           </h1>
           <p className={s.heroQuote}>« {c('hero_quote')} »</p>
