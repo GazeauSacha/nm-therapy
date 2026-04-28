@@ -1,24 +1,27 @@
 import { useEffect, useState } from 'react'
+import type { CSSProperties, ChangeEvent } from 'react'
 import { supabase } from '../../lib/supabase'
 import Topbar from '../../components/Topbar'
 
-const EMPTY_FORM = { title: '', title_nl: '', organisation: '', year: '', description: '', description_nl: '', badge: '' }
+interface FormationForm {
+  title: string; title_nl: string; organisation: string; year: string;
+  description: string; description_nl: string; badge: string;
+}
+
+const EMPTY_FORM: FormationForm = { title: '', title_nl: '', organisation: '', year: '', description: '', description_nl: '', badge: '' }
 
 export default function Formations() {
-  const [formations, setFormations] = useState([])
+  const [formations, setFormations] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
-  const [editId, setEditId] = useState(null)
-  const [form, setForm] = useState(EMPTY_FORM)
+  const [editId, setEditId] = useState<string | null>(null)
+  const [form, setForm] = useState<FormationForm>(EMPTY_FORM)
   const [saving, setSaving] = useState(false)
 
   useEffect(() => { load() }, [])
 
   async function load() {
-    const { data } = await supabase
-      .from('formations')
-      .select('*')
-      .order('year', { ascending: false })
+    const { data } = await supabase.from('formations').select('*').order('year', { ascending: false })
     setFormations(data || [])
     setLoading(false)
   }
@@ -29,13 +32,13 @@ export default function Formations() {
     setShowForm(true)
   }
 
-  function openEdit(f) {
+  function openEdit(f: any) {
     setEditId(f.id)
     setForm({ title: f.title, title_nl: f.title_nl || '', organisation: f.organisation || '', year: f.year || '', description: f.description || '', description_nl: f.description_nl || '', badge: f.badge || '' })
     setShowForm(true)
   }
 
-  async function save(e) {
+  async function save(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true)
     const payload = { ...form, year: parseInt(form.year, 10) || null }
@@ -49,13 +52,14 @@ export default function Formations() {
     load()
   }
 
-  async function remove(id) {
+  async function remove(id: string) {
     if (!confirm('Supprimer cette formation ?')) return
     await supabase.from('formations').delete().eq('id', id)
     setFormations(prev => prev.filter(f => f.id !== id))
   }
 
-  const set = k => e => setForm(prev => ({ ...prev, [k]: e.target.value }))
+  const set = (k: keyof FormationForm) => (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    setForm(prev => ({ ...prev, [k]: e.target.value }))
 
   return (
     <div>
@@ -107,9 +111,7 @@ export default function Formations() {
               <Fg label="🇧🇪 Description (NL, optionnel)" value={form.description_nl} onChange={set('description_nl')} textarea />
               <Fg label="Emoji / Badge (optionnel, ex: 🎓)" value={form.badge} onChange={set('badge')} placeholder="🎓" />
               <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem' }}>
-                <button type="submit" style={btnPrimary} disabled={saving}>
-                  {saving ? 'Enregistrement…' : 'Enregistrer'}
-                </button>
+                <button type="submit" style={btnPrimary} disabled={saving}>{saving ? 'Enregistrement…' : 'Enregistrer'}</button>
                 <button type="button" style={btnCancel} onClick={() => setShowForm(false)}>Annuler</button>
               </div>
             </form>
@@ -120,7 +122,13 @@ export default function Formations() {
   )
 }
 
-function Fg({ label, value, onChange, textarea, type = 'text', required, placeholder }) {
+interface FgProps {
+  label: string; value: string
+  onChange: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void
+  textarea?: boolean; type?: string; required?: boolean; placeholder?: string
+}
+
+function Fg({ label, value, onChange, textarea, type = 'text', required, placeholder }: FgProps) {
   return (
     <div style={{ marginBottom: '1rem' }}>
       <label style={s.label}>{label}</label>
@@ -131,12 +139,12 @@ function Fg({ label, value, onChange, textarea, type = 'text', required, placeho
   )
 }
 
-const btnPrimary = { background: 'var(--sage)', color: 'var(--warm-white)', border: 'none', padding: '0.65rem 1.5rem', fontFamily: 'Jost, sans-serif', fontSize: '0.78rem', letterSpacing: '0.1em', textTransform: 'uppercase', borderRadius: 3, cursor: 'pointer' }
-const btnEdit = { background: 'transparent', border: '1px solid rgba(139,158,126,0.4)', color: 'var(--sage)', padding: '0.35rem 0.8rem', fontFamily: 'Jost, sans-serif', fontSize: '0.72rem', borderRadius: 3, cursor: 'pointer' }
-const btnDelete = { background: 'transparent', border: '1px solid rgba(224,112,112,0.4)', color: '#E07070', padding: '0.35rem 0.8rem', fontFamily: 'Jost, sans-serif', fontSize: '0.72rem', borderRadius: 3, cursor: 'pointer' }
-const btnCancel = { background: 'transparent', border: '1px solid rgba(139,158,126,0.3)', color: 'var(--mist)', padding: '0.65rem 1.2rem', fontFamily: 'Jost, sans-serif', fontSize: '0.78rem', borderRadius: 3, cursor: 'pointer' }
+const btnPrimary: CSSProperties = { background: 'var(--sage)', color: 'var(--warm-white)', border: 'none', padding: '0.65rem 1.5rem', fontFamily: 'Jost, sans-serif', fontSize: '0.78rem', letterSpacing: '0.1em', textTransform: 'uppercase', borderRadius: 3, cursor: 'pointer' }
+const btnEdit: CSSProperties = { background: 'transparent', border: '1px solid rgba(139,158,126,0.4)', color: 'var(--sage)', padding: '0.35rem 0.8rem', fontFamily: 'Jost, sans-serif', fontSize: '0.72rem', borderRadius: 3, cursor: 'pointer' }
+const btnDelete: CSSProperties = { background: 'transparent', border: '1px solid rgba(224,112,112,0.4)', color: '#E07070', padding: '0.35rem 0.8rem', fontFamily: 'Jost, sans-serif', fontSize: '0.72rem', borderRadius: 3, cursor: 'pointer' }
+const btnCancel: CSSProperties = { background: 'transparent', border: '1px solid rgba(139,158,126,0.3)', color: 'var(--mist)', padding: '0.65rem 1.2rem', fontFamily: 'Jost, sans-serif', fontSize: '0.78rem', borderRadius: 3, cursor: 'pointer' }
 
-const s = {
+const s: Record<string, CSSProperties> = {
   grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '1.25rem' },
   card: { background: 'var(--warm-white)', borderRadius: 6, padding: '1.75rem', border: '1px solid rgba(139,158,126,0.15)' },
   cardTop: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' },

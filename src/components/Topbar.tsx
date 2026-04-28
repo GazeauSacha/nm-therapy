@@ -1,6 +1,12 @@
 import { Link } from 'react-router-dom'
+import type { CSSProperties } from 'react'
 
-export default function Topbar({ title, subtitle }) {
+interface TopbarProps {
+  title: string
+  subtitle?: string
+}
+
+export default function Topbar({ title, subtitle }: TopbarProps) {
   const today = new Date().toLocaleDateString('fr-FR', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
   })
@@ -19,7 +25,7 @@ export default function Topbar({ title, subtitle }) {
   )
 }
 
-const styles = {
+const styles: Record<string, CSSProperties> = {
   topbar: { background: 'var(--warm-white)', borderBottom: '1px solid rgba(139,158,126,0.15)', padding: '1rem 2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 40 },
   title: { fontFamily: 'Cormorant Garamond, serif', fontSize: '1.4rem', fontWeight: 400, color: 'var(--charcoal)' },
   sub: { fontSize: '0.75rem', color: 'var(--mist)', marginTop: '0.1rem' },

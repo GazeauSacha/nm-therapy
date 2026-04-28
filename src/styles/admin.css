@@ -1,0 +1,13 @@
+/* ── ADMIN RESPONSIVE ── */
+@media (max-width: 768px) {
+  .admin-topbar {
+    padding-left: 4rem !important;
+  }
+  .admin-page-content {
+    padding: 1rem !important;
+  }
+  .admin-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}

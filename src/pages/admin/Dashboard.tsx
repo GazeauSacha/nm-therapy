@@ -1,14 +1,25 @@
 import { useEffect, useState } from 'react'
+import type { CSSProperties } from 'react'
 import { supabase } from '../../lib/supabase'
 import Topbar from '../../components/Topbar'
 import { Link } from 'react-router-dom'
 import { useOutletContext } from 'react-router-dom'
 
+interface OutletCtx { isMobile: boolean; unreadMsg: number; pendingRdv: number }
+
+interface Stats { clients: number; rdvMonth: number; unread: number; pending: number }
+
+const STATUS_MAP: Record<string, [string, string, string]> = {
+  confirmed: ['Confirmé', '#6BA88820', '#6BA888'],
+  pending: ['En attente', '#C4896A20', '#C4896A'],
+  cancelled: ['Annulé', '#E0707020', '#E07070'],
+}
+
 export default function Dashboard() {
-  const { isMobile } = useOutletContext()
-  const [stats, setStats] = useState({ clients: 0, rdvMonth: 0, unread: 0, pending: 0 })
-  const [recentContacts, setRecentContacts] = useState([])
-  const [upcomingRdv, setUpcomingRdv] = useState([])
+  const { isMobile } = useOutletContext<OutletCtx>()
+  const [stats, setStats] = useState<Stats>({ clients: 0, rdvMonth: 0, unread: 0, pending: 0 })
+  const [recentContacts, setRecentContacts] = useState<any[]>([])
+  const [upcomingRdv, setUpcomingRdv] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -102,7 +113,7 @@ export default function Dashboard() {
   )
 }
 
-function StatCard({ label, value, change, color }) {
+function StatCard({ label, value, change, color }: { label: string; value: number; change: string; color: string }) {
   return (
     <div style={{ ...s.statCard, borderTopColor: color }}>
       <div style={s.statLabel}>{label}</div>
@@ -112,15 +123,14 @@ function StatCard({ label, value, change, color }) {
   )
 }
 
-function StatusBadge({ status }) {
-  const map = { confirmed: ['Confirmé', '#6BA88820', '#6BA888'], pending: ['En attente', '#C4896A20', '#C4896A'], cancelled: ['Annulé', '#E0707020', '#E07070'] }
-  const [label, bg, color] = map[status] || ['Inconnu', '#eee', '#999']
+function StatusBadge({ status }: { status: string }) {
+  const [label, bg, color] = STATUS_MAP[status] || ['Inconnu', '#eee', '#999']
   return <span style={{ fontSize: '0.68rem', padding: '0.2rem 0.6rem', borderRadius: 20, background: bg, color, fontWeight: 500, marginLeft: '0.5rem', whiteSpace: 'nowrap' }}>{label}</span>
 }
 
 function Loader() { return <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--mist)', fontSize: '0.85rem' }}>Chargement…</div> }
 
-const s = {
+const s: Record<string, CSSProperties> = {
   content: { padding: '2rem' },
   statsGrid: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.2rem', marginBottom: '1.5rem' },
   statCard: { background: 'var(--warm-white)', borderRadius: 6, padding: '1.5rem', border: '1px solid rgba(139,158,126,0.15)', borderTop: '3px solid', position: 'relative' },

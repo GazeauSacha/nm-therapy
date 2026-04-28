@@ -1,16 +1,19 @@
 import { useState } from 'react'
+import type { CSSProperties } from 'react'
 import { supabase } from '../../lib/supabase'
 import Topbar from '../../components/Topbar'
 import { useAuth } from '../../hooks/useAuth'
 
+interface PwForm { current: string; next: string; confirm: string }
+
 export default function Settings() {
   const { user } = useAuth()
-  const [pwForm, setPwForm] = useState({ current: '', next: '', confirm: '' })
+  const [pwForm, setPwForm] = useState<PwForm>({ current: '', next: '', confirm: '' })
   const [pwMsg, setPwMsg] = useState('')
   const [pwError, setPwError] = useState('')
   const [saving, setSaving] = useState(false)
 
-  async function changePassword(e) {
+  async function changePassword(e: React.FormEvent) {
     e.preventDefault()
     setPwMsg(''); setPwError('')
     if (pwForm.next !== pwForm.confirm) { setPwError('Les mots de passe ne correspondent pas.'); return }
@@ -69,10 +72,10 @@ export default function Settings() {
             ))}
           </div>
 
-          {/* Infos Supabase */}
+          {/* Infos système */}
           <div style={s.card}>
             <div style={s.cardTitle}>Informations système</div>
-            <InfoRow label="User ID" value={user?.id?.slice(0, 18) + '…'} />
+            <InfoRow label="User ID" value={(user?.id?.slice(0, 18) ?? '') + '…'} />
             <InfoRow label="Dernière connexion" value={user?.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleString('fr-FR') : '—'} />
             <InfoRow label="Méthode d'auth" value="Email / Mot de passe" />
             <InfoRow label="Base de données" value="Supabase (PostgreSQL)" />
@@ -88,7 +91,9 @@ export default function Settings() {
   )
 }
 
-function Fg({ label, type = 'text', value, onChange, placeholder }) {
+interface FgProps { label: string; type?: string; value: string; onChange: (v: string) => void; placeholder?: string }
+
+function Fg({ label, type = 'text', value, onChange, placeholder }: FgProps) {
   return (
     <div style={{ marginBottom: '1rem' }}>
       <label style={s.label}>{label}</label>
@@ -97,16 +102,16 @@ function Fg({ label, type = 'text', value, onChange, placeholder }) {
   )
 }
 
-function InfoRow({ label, value }) {
+function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.6rem 0', borderBottom: '1px solid rgba(139,158,126,0.08)' }}>
-      <span style={{ fontSize: '0.75rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--mist)' }}>{label}</span>
+      <span style={{ fontSize: '0.75rem', letterSpacing: '0.08em', textTransform: 'uppercase' as const, color: 'var(--mist)' }}>{label}</span>
       <span style={{ fontSize: '0.83rem', color: 'var(--charcoal)' }}>{value}</span>
     </div>
   )
 }
 
-function Toggle({ label, defaultOn }) {
+function Toggle({ label, defaultOn }: { label: string; defaultOn: boolean }) {
   const [on, setOn] = useState(defaultOn)
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
@@ -118,9 +123,9 @@ function Toggle({ label, defaultOn }) {
   )
 }
 
-const btn = { background: 'var(--sage)', color: 'var(--warm-white)', border: 'none', padding: '0.75rem 1.5rem', fontFamily: 'Jost, sans-serif', fontSize: '0.78rem', letterSpacing: '0.12em', textTransform: 'uppercase', borderRadius: 3, cursor: 'pointer' }
+const btn: CSSProperties = { background: 'var(--sage)', color: 'var(--warm-white)', border: 'none', padding: '0.75rem 1.5rem', fontFamily: 'Jost, sans-serif', fontSize: '0.78rem', letterSpacing: '0.12em', textTransform: 'uppercase', borderRadius: 3, cursor: 'pointer' }
 
-const s = {
+const s: Record<string, CSSProperties> = {
   grid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' },
   card: { background: 'var(--warm-white)', borderRadius: 6, padding: '2rem', border: '1px solid rgba(139,158,126,0.15)' },
   cardTitle: { fontSize: '0.85rem', fontWeight: 500, color: 'var(--charcoal)', marginBottom: '1.2rem', paddingBottom: '0.75rem', borderBottom: '1px solid rgba(139,158,126,0.1)' },

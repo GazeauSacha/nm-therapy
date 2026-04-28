@@ -5,7 +5,8 @@
       "Bash(npm run:*)",
       "Bash(magick --version)",
       "Bash(convert --version)",
-      "Bash(cwebp --version)"
+      "Bash(cwebp --version)",
+      "Bash(npm install *)"
     ]
   }
 }

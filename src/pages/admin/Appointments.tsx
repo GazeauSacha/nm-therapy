@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
+import type { CSSProperties } from 'react'
 import { supabase } from '../../lib/supabase'
 import Topbar from '../../components/Topbar'
 
-const STATUS_MAP = {
+const STATUS_MAP: Record<string, { label: string; bg: string; color: string }> = {
   pending:   { label: 'En attente', bg: '#C4896A20', color: '#C4896A' },
   confirmed: { label: 'Confirmé',   bg: '#6BA88820', color: '#6BA888' },
   cancelled: { label: 'Annulé',     bg: '#E0707020', color: '#E07070' },
@@ -12,18 +13,20 @@ const STATUS_MAP = {
 const PLATFORMS = ['Google Meet', 'WhatsApp', 'Zoom', 'Présentiel']
 const SUBJECTS  = ['Life Coaching', 'Love Coaching', 'Hypnose Thérapeutique', 'Thérapie de couple', 'Sexothérapie', 'EMDR / Psycho-Trauma', 'Guidance intuitive']
 
+interface AppointmentForm {
+  client_id: string; date: string; platform: string; subject: string; notes: string; status: string;
+}
+
 export default function Appointments() {
-  const [appointments, setAppointments] = useState([])
-  const [clients, setClients] = useState([])
+  const [appointments, setAppointments] = useState<any[]>([])
+  const [clients, setClients] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [filter, setFilter] = useState('all')
-  const [form, setForm] = useState({ client_id: '', date: '', platform: 'Google Meet', subject: '', notes: '', status: 'pending' })
+  const [form, setForm] = useState<AppointmentForm>({ client_id: '', date: '', platform: 'Google Meet', subject: '', notes: '', status: 'pending' })
   const [saving, setSaving] = useState(false)
 
-  useEffect(() => {
-    load()
-  }, [])
+  useEffect(() => { load() }, [])
 
   async function load() {
     const [{ data: rdvs }, { data: cls }] = await Promise.all([
@@ -35,15 +38,19 @@ export default function Appointments() {
     setLoading(false)
   }
 
-  async function saveRdv(e) {
+  async function saveRdv(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true)
     const { error } = await supabase.from('appointments').insert([{ ...form }])
     setSaving(false)
-    if (!error) { setShowForm(false); setForm({ client_id: '', date: '', platform: 'Google Meet', subject: '', notes: '', status: 'pending' }); load() }
+    if (!error) {
+      setShowForm(false)
+      setForm({ client_id: '', date: '', platform: 'Google Meet', subject: '', notes: '', status: 'pending' })
+      load()
+    }
   }
 
-  async function updateStatus(id, status) {
+  async function updateStatus(id: string, status: string) {
     await supabase.from('appointments').update({ status }).eq('id', id)
     setAppointments(prev => prev.map(a => a.id === id ? { ...a, status } : a))
   }
@@ -126,7 +133,7 @@ export default function Appointments() {
                   <label style={s.label}>Accompagnement</label>
                   <select style={s.input} value={form.subject} onChange={e => setForm(p => ({ ...p, subject: e.target.value }))}>
                     <option value="">Choisir…</option>
-                    {SUBJECTS.map(s => <option key={s}>{s}</option>)}
+                    {SUBJECTS.map(sub => <option key={sub}>{sub}</option>)}
                   </select>
                 </div>
                 <div style={s.formGroup}>
@@ -152,16 +159,16 @@ export default function Appointments() {
   )
 }
 
-function StatusBadge({ status }) {
+function StatusBadge({ status }: { status: string }) {
   const { label, bg, color } = STATUS_MAP[status] || { label: status, bg: '#eee', color: '#999' }
   return <span style={{ fontSize: '0.68rem', padding: '0.2rem 0.65rem', borderRadius: 20, background: bg, color, fontWeight: 500 }}>{label}</span>
 }
 
-const btnStyle = (bg) => ({ background: bg, color: 'var(--warm-white)', border: 'none', padding: '0.65rem 1.4rem', fontFamily: 'Jost, sans-serif', fontSize: '0.78rem', letterSpacing: '0.1em', textTransform: 'uppercase', borderRadius: 3, cursor: 'pointer' })
-const btnSmStyle = { background: 'transparent', border: '1px solid rgba(139,158,126,0.3)', padding: '0.4rem 0.9rem', fontFamily: 'Jost, sans-serif', fontSize: '0.72rem', borderRadius: 3, cursor: 'pointer', transition: 'all 0.2s' }
-const btnSmStyle2 = (color) => ({ background: 'transparent', border: `1px solid ${color}`, color, padding: '0.3rem 0.7rem', fontFamily: 'Jost, sans-serif', fontSize: '0.7rem', borderRadius: 3, cursor: 'pointer' })
+const btnStyle = (bg: string): CSSProperties => ({ background: bg, color: 'var(--warm-white)', border: 'none', padding: '0.65rem 1.4rem', fontFamily: 'Jost, sans-serif', fontSize: '0.78rem', letterSpacing: '0.1em', textTransform: 'uppercase', borderRadius: 3, cursor: 'pointer' })
+const btnSmStyle: CSSProperties = { background: 'transparent', border: '1px solid rgba(139,158,126,0.3)', padding: '0.4rem 0.9rem', fontFamily: 'Jost, sans-serif', fontSize: '0.72rem', borderRadius: 3, cursor: 'pointer', transition: 'all 0.2s' }
+const btnSmStyle2 = (color: string): CSSProperties => ({ background: 'transparent', border: `1px solid ${color}`, color, padding: '0.3rem 0.7rem', fontFamily: 'Jost, sans-serif', fontSize: '0.7rem', borderRadius: 3, cursor: 'pointer' })
 
-const s = {
+const s: Record<string, CSSProperties> = {
   card: { background: 'var(--warm-white)', borderRadius: 6, border: '1px solid rgba(139,158,126,0.15)' },
   table: { width: '100%', borderCollapse: 'collapse' },
   th: { fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--mist)', padding: '0.6rem 1rem', textAlign: 'left', borderBottom: '1px solid rgba(139,158,126,0.15)' },

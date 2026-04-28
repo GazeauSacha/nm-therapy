@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
+import type { CSSProperties } from 'react'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -10,7 +11,7 @@ export default function Login() {
   const { signIn } = useAuth()
   const navigate = useNavigate()
 
-  const handleLogin = async (e) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError('')
@@ -68,7 +69,7 @@ export default function Login() {
   )
 }
 
-const styles = {
+const styles: Record<string, CSSProperties> = {
   overlay: { minHeight: '100vh', background: 'var(--charcoal)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
   box: { background: 'var(--warm-white)', borderRadius: 8, padding: '3rem 2.5rem', width: 380, textAlign: 'center', boxShadow: '0 40px 80px rgba(0,0,0,0.3)', animation: 'scaleIn 0.4s ease' },
   logo: { fontFamily: 'Cormorant Garamond, serif', fontSize: '1.8rem', fontWeight: 400, color: 'var(--charcoal)', marginBottom: '0.3rem' },

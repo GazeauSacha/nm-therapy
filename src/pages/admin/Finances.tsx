@@ -1,20 +1,25 @@
 import { useEffect, useState } from 'react'
+import type { CSSProperties } from 'react'
 import { supabase } from '../../lib/supabase'
 import Topbar from '../../components/Topbar'
 
-const STATUS_MAP = {
+const STATUS_MAP: Record<string, { label: string; bg: string; color: string }> = {
   paid:    { label: 'Payée',      bg: '#6BA88820', color: '#6BA888' },
   pending: { label: 'En attente', bg: '#C4896A20', color: '#C4896A' },
   overdue: { label: 'En retard',  bg: '#E0707020', color: '#E07070' },
 }
 
+interface InvoiceForm {
+  client_id: string; amount: string; description: string; status: string; date: string;
+}
+
 export default function Finances() {
-  const [invoices, setInvoices] = useState([])
-  const [clients, setClients] = useState([])
+  const [invoices, setInvoices] = useState<any[]>([])
+  const [clients, setClients] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [saving, setSaving] = useState(false)
-  const [form, setForm] = useState({ client_id: '', amount: '', description: '', status: 'pending', date: new Date().toISOString().split('T')[0] })
+  const [form, setForm] = useState<InvoiceForm>({ client_id: '', amount: '', description: '', status: 'pending', date: new Date().toISOString().split('T')[0] })
 
   useEffect(() => { load() }, [])
 
@@ -28,21 +33,24 @@ export default function Finances() {
     setLoading(false)
   }
 
-  async function saveInvoice(e) {
+  async function saveInvoice(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true)
     const num = `#${String(invoices.length + 1).padStart(3, '0')}`
     const { error } = await supabase.from('invoices').insert([{ ...form, number: num, amount: parseFloat(form.amount) }])
     setSaving(false)
-    if (!error) { setShowForm(false); setForm({ client_id: '', amount: '', description: '', status: 'pending', date: new Date().toISOString().split('T')[0] }); load() }
+    if (!error) {
+      setShowForm(false)
+      setForm({ client_id: '', amount: '', description: '', status: 'pending', date: new Date().toISOString().split('T')[0] })
+      load()
+    }
   }
 
-  async function updateStatus(id, status) {
+  async function updateStatus(id: string, status: string) {
     await supabase.from('invoices').update({ status }).eq('id', id)
     setInvoices(prev => prev.map(i => i.id === id ? { ...i, status } : i))
   }
 
-  // Stats
   const totalMonth = invoices
     .filter(i => new Date(i.date).getMonth() === new Date().getMonth())
     .reduce((sum, i) => sum + (i.amount || 0), 0)
@@ -150,24 +158,24 @@ export default function Finances() {
   )
 }
 
-function StatCard({ label, value, color }) {
+function StatCard({ label, value, color }: { label: string; value: string; color: string }) {
   return (
     <div style={{ background: 'var(--warm-white)', borderRadius: 6, padding: '1.5rem', border: '1px solid rgba(139,158,126,0.15)', borderTop: `3px solid ${color}` }}>
-      <div style={{ fontSize: '0.7rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--mist)', marginBottom: '0.75rem' }}>{label}</div>
+      <div style={{ fontSize: '0.7rem', letterSpacing: '0.15em', textTransform: 'uppercase' as const, color: 'var(--mist)', marginBottom: '0.75rem' }}>{label}</div>
       <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '2.2rem', fontWeight: 300, color: 'var(--charcoal)' }}>{value}</div>
     </div>
   )
 }
 
-function StatusBadge({ status }) {
+function StatusBadge({ status }: { status: string }) {
   const { label, bg, color } = STATUS_MAP[status] || { label: status, bg: '#eee', color: '#999' }
   return <span style={{ fontSize: '0.68rem', padding: '0.2rem 0.65rem', borderRadius: 20, background: bg, color, fontWeight: 500 }}>{label}</span>
 }
 
-const btn = (bg) => ({ background: bg, color: 'var(--warm-white)', border: 'none', padding: '0.65rem 1.4rem', fontFamily: 'Jost, sans-serif', fontSize: '0.78rem', letterSpacing: '0.1em', textTransform: 'uppercase', borderRadius: 3, cursor: 'pointer' })
-const btnSm = (color) => ({ fontSize: '0.7rem', padding: '0.3rem 0.7rem', borderRadius: 3, cursor: 'pointer', border: `1px solid ${color}`, color, background: 'transparent', fontFamily: 'Jost, sans-serif' })
+const btn = (bg: string): CSSProperties => ({ background: bg, color: 'var(--warm-white)', border: 'none', padding: '0.65rem 1.4rem', fontFamily: 'Jost, sans-serif', fontSize: '0.78rem', letterSpacing: '0.1em', textTransform: 'uppercase', borderRadius: 3, cursor: 'pointer' })
+const btnSm = (color: string): CSSProperties => ({ fontSize: '0.7rem', padding: '0.3rem 0.7rem', borderRadius: 3, cursor: 'pointer', border: `1px solid ${color}`, color, background: 'transparent', fontFamily: 'Jost, sans-serif' })
 
-const s = {
+const s: Record<string, CSSProperties> = {
   statsGrid: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.2rem', marginBottom: '1.5rem' },
   card: { background: 'var(--warm-white)', borderRadius: 6, border: '1px solid rgba(139,158,126,0.15)' },
   table: { width: '100%', borderCollapse: 'collapse' },

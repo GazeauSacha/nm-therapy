@@ -19,7 +19,7 @@ const SiteContent = lazy(() => import('./pages/admin/SiteContent'))
 const Formations = lazy(() => import('./pages/admin/Formations'))
 const Settings = lazy(() => import('./pages/admin/Settings'))
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <AuthProvider>
       <BrowserRouter>

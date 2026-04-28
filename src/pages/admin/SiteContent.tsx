@@ -1,8 +1,20 @@
 import { useEffect, useState } from 'react'
+import type { CSSProperties, ChangeEvent } from 'react'
 import { supabase } from '../../lib/supabase'
 import Topbar from '../../components/Topbar'
 
-const DEFAULTS = {
+interface SiteFields {
+  hero_title: string; hero_subtitle: string; hero_quote: string; hero_tagline: string;
+  about_text_1: string; about_text_2: string;
+  cancellation_policy: string; pricing_note: string;
+  contact_phone: string; contact_email: string;
+  site_visible: string; form_active: string;
+  ticker_items: string; ticker_speed: string;
+  hero_title_nl: string; hero_subtitle_nl: string; hero_quote_nl: string; hero_tagline_nl: string;
+  about_text_1_nl: string; about_text_2_nl: string; cancellation_policy_nl: string;
+}
+
+const DEFAULTS: SiteFields = {
   hero_title: 'Nancy M.',
   hero_subtitle: 'Nancy M Therapy',
   hero_quote: "On ne fait pas un travail sur soi pour changer, on fait un travail sur soi pour devenir soi-même.",
@@ -17,18 +29,12 @@ const DEFAULTS = {
   form_active: 'true',
   ticker_items: 'Life & Love Coaching|Hypnothérapie|EMDR|Thérapie de couple & famille|Sexothérapie|Psycho-Trauma|Guidance intuitive|Constellation familiale|Distanciel · Meet · Zoom · WhatsApp',
   ticker_speed: 'normal',
-  // NL variants
-  hero_title_nl: '',
-  hero_subtitle_nl: '',
-  hero_quote_nl: '',
-  hero_tagline_nl: '',
-  about_text_1_nl: '',
-  about_text_2_nl: '',
-  cancellation_policy_nl: '',
+  hero_title_nl: '', hero_subtitle_nl: '', hero_quote_nl: '', hero_tagline_nl: '',
+  about_text_1_nl: '', about_text_2_nl: '', cancellation_policy_nl: '',
 }
 
 export default function SiteContent() {
-  const [fields, setFields] = useState(DEFAULTS)
+  const [fields, setFields] = useState<SiteFields>(DEFAULTS)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -38,7 +44,7 @@ export default function SiteContent() {
     async function load() {
       const { data } = await supabase.from('site_content').select('key, value')
       if (data && data.length > 0) {
-        const obj = {}
+        const obj: Record<string, string> = {}
         data.forEach(row => { obj[row.key] = row.value })
         setFields(prev => ({ ...prev, ...obj }))
       }
@@ -47,7 +53,7 @@ export default function SiteContent() {
     load()
   }, [])
 
-  async function saveAll(e) {
+  async function saveAll(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true)
     const rows = Object.entries(fields).map(([key, value]) => ({ key, value }))
@@ -56,8 +62,11 @@ export default function SiteContent() {
     if (!error) { setSaved(true); setTimeout(() => setSaved(false), 3000) }
   }
 
-  const set = (key) => (e) => setFields(prev => ({ ...prev, [key]: e.target.value }))
-  const toggle = (key) => () => setFields(prev => ({ ...prev, [key]: prev[key] === 'true' ? 'false' : 'true' }))
+  const set = (key: keyof SiteFields) => (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
+    setFields(prev => ({ ...prev, [key]: e.target.value }))
+
+  const toggle = (key: keyof SiteFields) => () =>
+    setFields(prev => ({ ...prev, [key]: prev[key] === 'true' ? 'false' : 'true' }))
 
   if (loading) return <div style={{ padding: '3rem', color: 'var(--mist)' }}>Chargement…</div>
 
@@ -68,25 +77,15 @@ export default function SiteContent() {
       <Topbar title="Contenu du site" subtitle="Modifiez les textes affichés sur votre site public." />
       <div style={{ padding: '2rem' }}>
 
-        {/* Language tab */}
         <div style={s.langTabs}>
-          <button style={{ ...s.langTab, ...(isFr ? s.langTabActive : {}) }} onClick={() => setLangTab('fr')} type="button">
-            🇫🇷 Français
-          </button>
-          <button style={{ ...s.langTab, ...(!isFr ? s.langTabActive : {}) }} onClick={() => setLangTab('nl')} type="button">
-            🇧🇪 Nederlands
-          </button>
-          {!isFr && (
-            <span style={{ fontSize: '0.75rem', color: 'var(--mist)', fontStyle: 'italic', marginLeft: '0.5rem' }}>
-              Laissez vide pour utiliser le texte FR par défaut
-            </span>
-          )}
+          <button style={{ ...s.langTab, ...(isFr ? s.langTabActive : {}) }} onClick={() => setLangTab('fr')} type="button">🇫🇷 Français</button>
+          <button style={{ ...s.langTab, ...(!isFr ? s.langTabActive : {}) }} onClick={() => setLangTab('nl')} type="button">🇧🇪 Nederlands</button>
+          {!isFr && <span style={{ fontSize: '0.75rem', color: 'var(--mist)', fontStyle: 'italic', marginLeft: '0.5rem' }}>Laissez vide pour utiliser le texte FR par défaut</span>}
         </div>
 
         <form onSubmit={saveAll}>
           <div style={s.grid}>
 
-            {/* Hero */}
             <Section title={isFr ? 'Section Hero (FR)' : 'Section Hero (NL)'}>
               <Fg label="Nom affiché (titre principal)" value={isFr ? fields.hero_title : fields.hero_title_nl} onChange={set(isFr ? 'hero_title' : 'hero_title_nl')} />
               <Fg label="Sous-titre / marque" value={isFr ? fields.hero_subtitle : fields.hero_subtitle_nl} onChange={set(isFr ? 'hero_subtitle' : 'hero_subtitle_nl')} />
@@ -94,13 +93,11 @@ export default function SiteContent() {
               <Fg label="Texte descriptif hero" value={isFr ? fields.hero_tagline : fields.hero_tagline_nl} onChange={set(isFr ? 'hero_tagline' : 'hero_tagline_nl')} textarea />
             </Section>
 
-            {/* À propos */}
             <Section title={isFr ? 'À Propos (FR)' : 'À Propos (NL)'}>
               <Fg label="Paragraphe 1" value={isFr ? fields.about_text_1 : fields.about_text_1_nl} onChange={set(isFr ? 'about_text_1' : 'about_text_1_nl')} textarea />
               <Fg label="Paragraphe 2" value={isFr ? fields.about_text_2 : fields.about_text_2_nl} onChange={set(isFr ? 'about_text_2' : 'about_text_2_nl')} textarea />
             </Section>
 
-            {/* Ticker — uniquement en FR */}
             {isFr && (
               <Section title="Bandeau défilant (ticker)">
                 <Fg label="Phrases du ticker (séparées par |)" value={fields.ticker_items} onChange={set('ticker_items')} textarea />
@@ -115,7 +112,6 @@ export default function SiteContent() {
               </Section>
             )}
 
-            {/* Tarifs & Annulation */}
             <Section title={isFr ? "Politique d'annulation (FR)" : "Annuleringsbeleid (NL)"}>
               {isFr && <Fg label="Note sur les tarifs" value={fields.pricing_note} onChange={set('pricing_note')} textarea />}
               <Fg
@@ -126,7 +122,6 @@ export default function SiteContent() {
               />
             </Section>
 
-            {/* Coordonnées — uniquement en FR */}
             {isFr && (
               <Section title="Coordonnées">
                 <Fg label="Téléphone" value={fields.contact_phone} onChange={set('contact_phone')} />
@@ -135,7 +130,6 @@ export default function SiteContent() {
             )}
           </div>
 
-          {/* Toggles — uniquement en FR */}
           {isFr && (
             <div style={s.toggleCard}>
               <div style={s.toggleCardTitle}>Paramètres d'affichage</div>
@@ -158,7 +152,7 @@ export default function SiteContent() {
   )
 }
 
-function Section({ title, children }) {
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div style={s.section}>
       <div style={s.sectionTitle}>{title}</div>
@@ -167,7 +161,14 @@ function Section({ title, children }) {
   )
 }
 
-function Fg({ label, value, onChange, textarea }) {
+interface FgProps {
+  label: string
+  value: string
+  onChange: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void
+  textarea?: boolean
+}
+
+function Fg({ label, value, onChange, textarea }: FgProps) {
   return (
     <div style={{ marginBottom: '1rem' }}>
       <label style={s.label}>{label}</label>
@@ -178,7 +179,7 @@ function Fg({ label, value, onChange, textarea }) {
   )
 }
 
-function Toggle({ label, on, onClick }) {
+function Toggle({ label, on, onClick }: { label: string; on: boolean; onClick: () => void }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.85rem' }}>
       <div onClick={onClick} style={{ position: 'relative', width: 40, height: 22, background: on ? 'var(--sage)' : 'rgba(139,158,126,0.2)', borderRadius: 11, cursor: 'pointer', transition: 'background 0.3s', flexShrink: 0 }}>
@@ -189,9 +190,9 @@ function Toggle({ label, on, onClick }) {
   )
 }
 
-const btn = { background: 'var(--sage)', color: 'var(--warm-white)', border: 'none', padding: '0.8rem 2rem', fontFamily: 'Jost, sans-serif', fontSize: '0.82rem', letterSpacing: '0.12em', textTransform: 'uppercase', borderRadius: 3, cursor: 'pointer' }
+const btn: CSSProperties = { background: 'var(--sage)', color: 'var(--warm-white)', border: 'none', padding: '0.8rem 2rem', fontFamily: 'Jost, sans-serif', fontSize: '0.82rem', letterSpacing: '0.12em', textTransform: 'uppercase', borderRadius: 3, cursor: 'pointer' }
 
-const s = {
+const s: Record<string, CSSProperties> = {
   grid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' },
   section: { background: 'var(--warm-white)', borderRadius: 6, padding: '2rem', border: '1px solid rgba(139,158,126,0.15)' },
   sectionTitle: { fontSize: '0.82rem', fontWeight: 500, color: 'var(--charcoal)', marginBottom: '1.2rem', paddingBottom: '0.75rem', borderBottom: '1px solid rgba(139,158,126,0.1)', letterSpacing: '0.05em' },

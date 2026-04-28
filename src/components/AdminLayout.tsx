@@ -1,9 +1,23 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { useState, useEffect } from 'react'
+import type { CSSProperties } from 'react'
 import { supabase } from '../lib/supabase'
 
-const navItems = [
+interface NavItemDef {
+  to: string
+  label: string
+  icon: React.ReactNode
+  badge?: string
+}
+
+interface NavItemProps {
+  item: NavItemDef
+  badge: number
+  onNavigate: () => void
+}
+
+const navItems: NavItemDef[] = [
   { to: '/admin/dashboard', label: 'Tableau de bord', icon: <GridIcon /> },
   { to: '/admin/appointments', label: 'Rendez-vous', icon: <CalIcon />, badge: 'rdv' },
   { to: '/admin/clients', label: 'Clients', icon: <UsersIcon /> },
@@ -33,15 +47,12 @@ export default function AdminLayout() {
   }, [])
 
   useEffect(() => {
-    // Count unread messages
     supabase.from('contacts').select('id', { count: 'exact' }).eq('read', false)
       .then(({ count }) => setUnreadMsg(count || 0))
 
-    // Count pending appointments
     supabase.from('appointments').select('id', { count: 'exact' }).eq('status', 'pending')
       .then(({ count }) => setPendingRdv(count || 0))
 
-    // Realtime subscription for new messages
     const sub = supabase.channel('admin-realtime')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'contacts' }, () => {
         setUnreadMsg(n => n + 1)
@@ -51,7 +62,7 @@ export default function AdminLayout() {
     return () => supabase.removeChannel(sub)
   }, [])
 
-  const badges = { msg: unreadMsg, rdv: pendingRdv }
+  const badges: Record<string, number> = { msg: unreadMsg, rdv: pendingRdv }
 
   const handleLogout = async () => {
     await signOut()
@@ -137,7 +148,7 @@ export default function AdminLayout() {
   )
 }
 
-function NavItem({ item, badge, onNavigate }) {
+function NavItem({ item, badge, onNavigate }: NavItemProps) {
   return (
     <NavLink
       to={item.to}
@@ -154,7 +165,7 @@ function NavItem({ item, badge, onNavigate }) {
   )
 }
 
-const styles = {
+const styles: Record<string, CSSProperties> = {
   sidebar: { width: 260, background: 'var(--charcoal)', minHeight: '100vh', position: 'fixed', top: 0, left: 0, display: 'flex', flexDirection: 'column', zIndex: 50 },
   sidebarLogo: { padding: '1.8rem 1.5rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.07)' },
   brand: { fontFamily: 'Cormorant Garamond, serif', fontSize: '1.2rem', color: 'var(--warm-white)', fontWeight: 400 },

@@ -1,0 +1,6 @@
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; font-size: 15px; }
+body { font-family: 'Jost', sans-serif; background: var(--warm-white); color: var(--charcoal); overflow-x: hidden; }
+
+a { text-decoration: none; color: inherit; }
+button { font-family: 'Jost', sans-serif; cursor: pointer; }

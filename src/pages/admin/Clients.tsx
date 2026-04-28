@@ -1,14 +1,19 @@
 import { useEffect, useState } from 'react'
+import type { CSSProperties } from 'react'
 import { supabase } from '../../lib/supabase'
 import Topbar from '../../components/Topbar'
 
+interface ClientForm {
+  first_name: string; last_name: string; email: string; phone: string; subject: string; notes: string;
+}
+
 export default function Clients() {
-  const [clients, setClients] = useState([])
+  const [clients, setClients] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [saving, setSaving] = useState(false)
-  const [form, setForm] = useState({ first_name: '', last_name: '', email: '', phone: '', subject: '', notes: '' })
+  const [form, setForm] = useState<ClientForm>({ first_name: '', last_name: '', email: '', phone: '', subject: '', notes: '' })
 
   useEffect(() => { load() }, [])
 
@@ -18,12 +23,16 @@ export default function Clients() {
     setLoading(false)
   }
 
-  async function saveClient(e) {
+  async function saveClient(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true)
     const { error } = await supabase.from('clients').insert([{ ...form, created_at: new Date().toISOString() }])
     setSaving(false)
-    if (!error) { setShowForm(false); setForm({ first_name: '', last_name: '', email: '', phone: '', subject: '', notes: '' }); load() }
+    if (!error) {
+      setShowForm(false)
+      setForm({ first_name: '', last_name: '', email: '', phone: '', subject: '', notes: '' })
+      load()
+    }
   }
 
   const filtered = clients.filter(c =>
@@ -107,7 +116,9 @@ export default function Clients() {
   )
 }
 
-function Fg({ label, value, onChange, type = 'text', required }) {
+interface FgProps { label: string; value: string; onChange: (v: string) => void; type?: string; required?: boolean }
+
+function Fg({ label, value, onChange, type = 'text', required }: FgProps) {
   return (
     <div style={s.formGroup}>
       <label style={s.label}>{label}</label>
@@ -116,10 +127,10 @@ function Fg({ label, value, onChange, type = 'text', required }) {
   )
 }
 
-const btn = (bg) => ({ background: bg, color: 'var(--warm-white)', border: 'none', padding: '0.65rem 1.4rem', fontFamily: 'Jost, sans-serif', fontSize: '0.78rem', letterSpacing: '0.1em', textTransform: 'uppercase', borderRadius: 3, cursor: 'pointer' })
-const btnSm = { fontSize: '0.7rem', padding: '0.3rem 0.7rem', borderRadius: 3, cursor: 'pointer', border: '1px solid', background: 'transparent', fontFamily: 'Jost, sans-serif', textDecoration: 'none', display: 'inline-block' }
+const btn = (bg: string): CSSProperties => ({ background: bg, color: 'var(--warm-white)', border: 'none', padding: '0.65rem 1.4rem', fontFamily: 'Jost, sans-serif', fontSize: '0.78rem', letterSpacing: '0.1em', textTransform: 'uppercase', borderRadius: 3, cursor: 'pointer' })
+const btnSm: CSSProperties = { fontSize: '0.7rem', padding: '0.3rem 0.7rem', borderRadius: 3, cursor: 'pointer', border: '1px solid', background: 'transparent', fontFamily: 'Jost, sans-serif', textDecoration: 'none', display: 'inline-block' }
 
-const s = {
+const s: Record<string, CSSProperties> = {
   card: { background: 'var(--warm-white)', borderRadius: 6, border: '1px solid rgba(139,158,126,0.15)' },
   table: { width: '100%', borderCollapse: 'collapse' },
   th: { fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--mist)', padding: '0.6rem 1rem', textAlign: 'left', borderBottom: '1px solid rgba(139,158,126,0.15)' },
