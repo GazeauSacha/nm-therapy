@@ -70,24 +70,6 @@
     "title": "Formations &",
     "title_em": "Habilitations"
   },
-  "pricing": {
-    "eyebrow": "Tarifs",
-    "title": "Des tarifs",
-    "title_em": "flexibles",
-    "title_2": "selon votre situation",
-    "subtitle": "Adaptés en fonction de votre situation personnelle et professionnelle.",
-    "card1_label": "Séance individuelle",
-    "card1_price": "Sur rendez-vous",
-    "card1_detail": "Entre 45 min et 1h30 selon le besoin et l'approche utilisée (coaching, hypnose, EMDR, guidance…)",
-    "card1_note": "Tarif adapté à votre situation — discutons-en lors d'un premier échange.",
-    "card1_btn": "Prendre Contact",
-    "card2_label": "Thérapie de couple",
-    "card2_price": "7 séances",
-    "card2_detail": "Programme incluant 7 séances (dont 2 individuelles) pour retrouver la complicité et reconstruire une vraie équipe.",
-    "card2_note": "Tarif communiqué lors du premier contact.",
-    "card2_btn": "Prendre contact",
-    "cancellation_title": "⚠ Politique d'annulation"
-  },
   "contact": {
     "eyebrow": "Contact",
     "title": "Votre chemin commence",
