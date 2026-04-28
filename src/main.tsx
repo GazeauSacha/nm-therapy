@@ -17,6 +17,8 @@ const Messages = lazy(() => import('./pages/admin/Messages'))
 const Finances = lazy(() => import('./pages/admin/Finances'))
 const SiteContent = lazy(() => import('./pages/admin/SiteContent'))
 const Formations = lazy(() => import('./pages/admin/Formations'))
+const Activities = lazy(() => import('./pages/admin/Activities'))
+const Offers = lazy(() => import('./pages/admin/Offers'))
 const Settings = lazy(() => import('./pages/admin/Settings'))
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -41,6 +43,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
               <Route path="finances" element={<Finances />} />
               <Route path="site" element={<SiteContent />} />
               <Route path="formations" element={<Formations />} />
+              <Route path="activities" element={<Activities />} />
+              <Route path="offers" element={<Offers />} />
               <Route path="settings" element={<Settings />} />
             </Route>
           </Routes>
