@@ -42,6 +42,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
               <Route path="appointments" element={<Appointments />} />
               <Route path="clients" element={<Clients />} />
               <Route path="clients/:id" element={<ClientDetail />} />
+              <Route path="messages" element={<Navigate to="/admin/contacts" replace />} />
               <Route path="contacts" element={<Contacts />} />
               <Route path="contacts/:id" element={<ContactDetail />} />
               <Route path="finances" element={<Finances />} />
