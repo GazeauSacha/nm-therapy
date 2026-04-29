@@ -1,16 +1,11 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
-// Lazy init to avoid crash at module load time if env vars missing
-let _admin: ReturnType<typeof createClient> | null = null;
-
-export function getAdmin() {
-  if (!_admin) {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    if (!url || !key) throw new Error("Missing SUPABASE env vars");
-    _admin = createClient(url, key);
-  }
-  return _admin;
+export function getAdmin(): SupabaseClient<any> {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url) throw new Error("NEXT_PUBLIC_SUPABASE_URL is not set");
+  if (!key) throw new Error("SUPABASE_SERVICE_ROLE_KEY is not set");
+  return createClient<any>(url, key);
 }
 
 export async function sendEmail({
@@ -23,7 +18,7 @@ export async function sendEmail({
   html: string;
 }) {
   const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) throw new Error("Missing RESEND_API_KEY");
+  if (!apiKey) throw new Error("RESEND_API_KEY is not set");
 
   const from =
     process.env.RESEND_FROM_EMAIL ||
