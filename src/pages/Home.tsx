@@ -234,7 +234,7 @@ export default function Home() {
           </a>
           <ul className="navLinks">
             {(
-              ["about", "services", "approche", "tarifs", "contact"] as const
+              ["about", "services", "approche", "contact"] as const
             ).map((id) => (
               <li key={id}>
                 <a
@@ -245,7 +245,7 @@ export default function Home() {
                   }}
                 >
                   {t(
-                    `nav.${id === "approche" ? "approach" : id === "tarifs" ? "pricing" : id}`,
+                    `nav.${id === "approche" ? "approach" : id}`,
                   )}
                 </a>
               </li>
@@ -499,7 +499,6 @@ export default function Home() {
               <span className="platform">💬 WhatsApp</span>
               <span className="platform">🎥 Zoom</span>
             </div>
-            <p className="distancielNote">{t("distanciel.note")}</p>
           </div>
         </section>
 
@@ -840,7 +839,6 @@ export default function Home() {
               {[
                 ["about", t("footer.link_about")],
                 ["approche", t("footer.link_approach")],
-                ["tarifs", t("footer.link_pricing")],
                 ["contact", t("footer.link_contact")],
               ].map(([id, label]) => (
                 <li key={id}>
