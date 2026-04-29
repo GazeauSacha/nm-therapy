@@ -386,10 +386,10 @@ export default function Home() {
             <div className="heroImageWrap">
               <BotanicalSVG />
             </div>
-            <div className="heroQuoteCard">
+            {/* <div className="heroQuoteCard">
               <blockquote>{t("hero.quote_card")}</blockquote>
               <cite>{c("hero_title")}</cite>
-            </div>
+            </div> */}
           </div>
         </section>
 
