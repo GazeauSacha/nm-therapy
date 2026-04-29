@@ -151,7 +151,7 @@ export default function Home() {
     );
     els.forEach((el) => obs.observe(el));
     return () => obs.disconnect();
-  }, []);
+  }, [activities, offers, formations]);
 
   const c = (key: keyof SiteContent): string => {
     if (lang === "nl") {
