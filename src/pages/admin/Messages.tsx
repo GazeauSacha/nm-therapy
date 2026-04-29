@@ -34,7 +34,7 @@ export default function Messages() {
       })
       .subscribe()
 
-    return () => supabase.removeChannel(sub)
+    return () => { supabase.removeChannel(sub) }
   }, [])
 
   async function loadContacts() {
@@ -130,7 +130,30 @@ export default function Messages() {
         status: 'pending',
       }])
 
-      const rdvMsg = `📅 Proposition de rendez-vous\n\nDate : ${new Date(rdvForm.date).toLocaleString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}\nType : ${rdvForm.subject || 'Non précisé'}\nPlateforme : ${rdvForm.platform}${rdvForm.notes ? `\nNotes : ${rdvForm.notes}` : ''}\n\nMerci de confirmer ou de me contacter si ce créneau ne vous convient pas.`
+      const dateFormatted = new Date(rdvForm.date).toLocaleString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+      const rdvMsg = `📅 Proposition de rendez-vous\n\nDate : ${dateFormatted}\nType : ${rdvForm.subject || 'Non précisé'}\nPlateforme : ${rdvForm.platform}${rdvForm.notes ? `\nNotes : ${rdvForm.notes}` : ''}\n\nMerci de confirmer ou de me contacter si ce créneau ne vous convient pas.`
+
+      await supabase.functions.invoke('send-mail', {
+        body: {
+          to: selected.email,
+          subject: `Proposition de rendez-vous — Nancy M Therapy`,
+          html: `
+            <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; color: #333;">
+              <p>Bonjour ${selected.first_name},</p>
+              <p>Je vous propose le rendez-vous suivant :</p>
+              <table style="border-collapse: collapse; margin: 1.5rem 0;">
+                <tr><td style="padding: 0.4rem 1rem 0.4rem 0; color: #888; font-size: 0.9em;">Date</td><td style="padding: 0.4rem 0; font-weight: 500;">${dateFormatted}</td></tr>
+                <tr><td style="padding: 0.4rem 1rem 0.4rem 0; color: #888; font-size: 0.9em;">Type de séance</td><td style="padding: 0.4rem 0;">${rdvForm.subject || 'Non précisé'}</td></tr>
+                <tr><td style="padding: 0.4rem 1rem 0.4rem 0; color: #888; font-size: 0.9em;">Plateforme</td><td style="padding: 0.4rem 0;">${rdvForm.platform}</td></tr>
+                ${rdvForm.notes ? `<tr><td style="padding: 0.4rem 1rem 0.4rem 0; color: #888; font-size: 0.9em;">Notes</td><td style="padding: 0.4rem 0;">${rdvForm.notes}</td></tr>` : ''}
+              </table>
+              <p>Merci de me confirmer ce créneau ou de me contacter si celui-ci ne vous convient pas.</p>
+              <br/>
+              <p style="color: #888; font-size: 0.85em;">— Nancy M. · Nancy M Therapy</p>
+            </div>
+          `,
+        },
+      })
 
       const { data: autoReply } = await supabase.from('replies').insert([{
         contact_id: selected.id,

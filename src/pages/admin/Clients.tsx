@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { CSSProperties } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import Topbar from '../../components/Topbar'
 
@@ -8,6 +9,7 @@ interface ClientForm {
 }
 
 export default function Clients() {
+  const navigate = useNavigate()
   const [clients, setClients] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -72,7 +74,10 @@ export default function Clients() {
                       <td style={s.td}>{c.appointments?.[0]?.count || 0}</td>
                       <td style={s.td}><span style={{ fontSize: '0.78rem', color: 'var(--mist)' }}>{c.notes?.slice(0, 40) || '—'}</span></td>
                       <td style={s.td}>
-                        <a href={`mailto:${c.email}`} style={{ ...btnSm, color: 'var(--sage)', borderColor: 'var(--sage)' }}>Email</a>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                          <button style={{ ...btnSm, color: 'var(--sage)', borderColor: 'var(--sage)' }} onClick={() => navigate(`/admin/clients/${c.id}`)}>Voir</button>
+                          <a href={`mailto:${c.email}`} style={{ ...btnSm, color: 'var(--mist)', borderColor: 'var(--mist)' }}>Email</a>
+                        </div>
                       </td>
                     </tr>
                   ))}

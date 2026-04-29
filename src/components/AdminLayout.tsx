@@ -21,7 +21,7 @@ const navItems: NavItemDef[] = [
   { to: '/admin/dashboard', label: 'Tableau de bord', icon: <GridIcon /> },
   { to: '/admin/appointments', label: 'Rendez-vous', icon: <CalIcon />, badge: 'rdv' },
   { to: '/admin/clients', label: 'Clients', icon: <UsersIcon /> },
-  { to: '/admin/messages', label: 'Messages', icon: <MsgIcon />, badge: 'msg' },
+  { to: '/admin/contacts', label: 'Contacts', icon: <MsgIcon />, badge: 'msg' },
   { to: '/admin/finances', label: 'Facturation', icon: <EuroIcon /> },
   { to: '/admin/site', label: 'Contenu du site', icon: <GlobeIcon /> },
   { to: '/admin/activities', label: 'Activités', icon: <LayersIcon /> },

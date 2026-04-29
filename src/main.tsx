@@ -13,7 +13,9 @@ const AdminLayout = lazy(() => import('./components/AdminLayout'))
 const Dashboard = lazy(() => import('./pages/admin/Dashboard'))
 const Appointments = lazy(() => import('./pages/admin/Appointments'))
 const Clients = lazy(() => import('./pages/admin/Clients'))
-const Messages = lazy(() => import('./pages/admin/Messages'))
+const Contacts = lazy(() => import('./pages/admin/Contacts'))
+const ContactDetail = lazy(() => import('./pages/admin/ContactDetail'))
+const ClientDetail = lazy(() => import('./pages/admin/ClientDetail'))
 const Finances = lazy(() => import('./pages/admin/Finances'))
 const SiteContent = lazy(() => import('./pages/admin/SiteContent'))
 const Formations = lazy(() => import('./pages/admin/Formations'))
@@ -39,7 +41,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="appointments" element={<Appointments />} />
               <Route path="clients" element={<Clients />} />
-              <Route path="messages" element={<Messages />} />
+              <Route path="clients/:id" element={<ClientDetail />} />
+              <Route path="contacts" element={<Contacts />} />
+              <Route path="contacts/:id" element={<ContactDetail />} />
               <Route path="finances" element={<Finances />} />
               <Route path="site" element={<SiteContent />} />
               <Route path="formations" element={<Formations />} />

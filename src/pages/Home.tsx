@@ -198,33 +198,26 @@ export default function Home() {
     e.preventDefault();
     setSending(true);
     setFormError("");
-    const { error } = await supabase.from("contacts").insert([
-      {
-        first_name: formData.prenom,
-        last_name: formData.nom,
-        email: formData.email,
-        phone: formData.telephone,
-        subject: formData.motif,
-        message: formData.message,
-        read: false,
-        created_at: new Date().toISOString(),
-      },
-    ]);
-    setSending(false);
-    if (error) {
-      setFormError(
-        "Une erreur est survenue. Merci de réessayer ou de me contacter directement.",
-      );
-    } else {
-      setSent(true);
-      setFormData({
-        prenom: "",
-        nom: "",
-        email: "",
-        telephone: "",
-        motif: "",
-        message: "",
+    try {
+      const res = await fetch("/api/submit-contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          first_name: formData.prenom,
+          last_name: formData.nom,
+          email: formData.email,
+          phone: formData.telephone,
+          subject: formData.motif,
+          message: formData.message,
+        }),
       });
+      if (!res.ok) throw new Error("server error");
+      setSent(true);
+      setFormData({ prenom: "", nom: "", email: "", telephone: "", motif: "", message: "" });
+    } catch {
+      setFormError("Une erreur est survenue. Merci de réessayer ou de me contacter directement.");
+    } finally {
+      setSending(false);
     }
   };
 
