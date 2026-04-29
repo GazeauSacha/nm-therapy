@@ -22,7 +22,7 @@ export async function sendEmail({
 
   const from =
     process.env.RESEND_FROM_EMAIL ||
-    "Nancy M Therapy <nancymtherapy@gmail.com>";
+    "Nancy M Therapy <noreply@nancymtherapy.be>";
 
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
