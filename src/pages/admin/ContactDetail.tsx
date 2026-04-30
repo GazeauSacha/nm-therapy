@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 import type { CSSProperties } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useOutletContext } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
-import Topbar from '../../components/Topbar'
 
 export default function ContactDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { isMobile } = useOutletContext<{ isMobile: boolean }>()
 
   const [contact, setContact] = useState<any>(null)
   const [replies, setReplies] = useState<any[]>([])
@@ -14,6 +14,7 @@ export default function ContactDetail() {
   const [sending, setSending] = useState(false)
   const [converting, setConverting] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [clientId, setClientId] = useState<string | null>(null)
 
   useEffect(() => {
     if (!id) return
@@ -37,6 +38,10 @@ export default function ContactDetail() {
     if (data && !data.read) {
       await supabase.from('contacts').update({ read: true }).eq('id', id)
       setContact((prev: any) => ({ ...prev, read: true }))
+    }
+    if (data?.status === 'converted' && data.email) {
+      const { data: client } = await supabase.from('clients').select('id').eq('email', data.email).maybeSingle()
+      if (client) setClientId(client.id)
     }
   }
 
@@ -83,9 +88,9 @@ export default function ContactDetail() {
         .eq('email', contact.email)
         .maybeSingle()
 
-      let clientId: string
+      let cid: string
       if (existing) {
-        clientId = existing.id
+        cid = existing.id
       } else {
         const { data: newClient, error } = await supabase
           .from('clients')
@@ -100,11 +105,12 @@ export default function ContactDetail() {
           .select()
           .single()
         if (error) throw new Error(error.message)
-        clientId = newClient.id
+        cid = newClient.id
       }
 
       await supabase.from('contacts').update({ status: 'converted' }).eq('id', contact.id)
-      navigate(`/admin/clients/${clientId}`)
+      setContact((prev: any) => ({ ...prev, status: 'converted' }))
+      setClientId(cid)
     } catch (err: any) {
       alert('Erreur : ' + err.message)
     } finally {
@@ -116,32 +122,31 @@ export default function ContactDetail() {
   if (!contact) return <div style={s.loading}>Contact introuvable.</div>
 
   return (
-    <div>
-      <Topbar
-        title={`${contact.first_name} ${contact.last_name}`}
-        subtitle={contact.email}
-        back={{ label: '← Contacts', to: '/admin/contacts' }}
-      />
-
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div style={s.detailHeader}>
         <div style={s.av}>{contact.first_name?.[0]}</div>
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
           <div style={s.headerName}>{contact.first_name} {contact.last_name}</div>
           <div style={s.headerMeta}>{contact.email}{contact.phone ? ` · ${contact.phone}` : ''}</div>
         </div>
-        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', flexShrink: 0 }}>
           {contact.status !== 'converted' && (
             <button style={s.convertBtn} onClick={convertToClient} disabled={converting}>
               {converting ? 'Conversion…' : 'Convertir en client'}
             </button>
           )}
-          {contact.status === 'converted' && (
+          {clientId && (
+            <button style={s.rdvBtn} onClick={() => navigate(`/admin/clients/${clientId}`)}>
+              Faire un RDV
+            </button>
+          )}
+          {contact.status === 'converted' && !clientId && (
             <span style={s.tagConverted}>Converti en client</span>
           )}
         </div>
       </div>
 
-      <div style={s.thread}>
+      <div style={{ ...s.thread, flex: 1, overflowY: 'auto' }}>
         {/* Initial message */}
         <div style={s.bubbleClient}>
           {contact.subject && <div style={s.subject}>Motif : {contact.subject}</div>}
@@ -170,12 +175,12 @@ export default function ContactDetail() {
         <textarea
           value={reply}
           onChange={(e) => setReply(e.target.value)}
-          rows={4}
+          rows={isMobile ? 3 : 4}
           placeholder={`Bonjour ${contact.first_name},\n\nMerci pour votre message…`}
           style={s.replyArea}
           required
         />
-        <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.75rem' }}>
+        <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.75rem', flexWrap: 'wrap' }}>
           <button type="submit" style={s.sendBtn} disabled={sending}>
             {sending ? 'Envoi…' : 'Envoyer'}
           </button>
@@ -193,19 +198,20 @@ export default function ContactDetail() {
 
 const s: Record<string, CSSProperties> = {
   loading: { padding: '3rem', color: 'var(--mist)', fontSize: '0.85rem', fontStyle: 'italic' },
-  detailHeader: { display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.25rem 2rem', background: 'var(--warm-white)', borderBottom: '1px solid rgba(139,158,126,0.1)', flexShrink: 0, flexWrap: 'wrap' },
+  detailHeader: { display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.25rem 1.5rem', background: 'var(--warm-white)', borderBottom: '1px solid rgba(139,158,126,0.1)', flexShrink: 0, flexWrap: 'wrap' },
   av: { width: 38, height: 38, borderRadius: '50%', background: 'linear-gradient(135deg, var(--sage) 0%, var(--clay) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Cormorant Garamond, serif', fontSize: '1rem', color: 'var(--warm-white)', flexShrink: 0 },
   headerName: { fontSize: '0.95rem', fontWeight: 500, color: 'var(--charcoal)' },
   headerMeta: { fontSize: '0.75rem', color: 'var(--mist)', marginTop: '0.1rem' },
   convertBtn: { background: 'var(--clay)', color: 'var(--warm-white)', border: 'none', padding: '0.55rem 1rem', fontFamily: 'Jost, sans-serif', fontSize: '0.75rem', letterSpacing: '0.07em', borderRadius: 3, cursor: 'pointer' },
+  rdvBtn: { background: 'var(--sage)', color: 'var(--warm-white)', border: 'none', padding: '0.55rem 1rem', fontFamily: 'Jost, sans-serif', fontSize: '0.75rem', letterSpacing: '0.07em', borderRadius: 3, cursor: 'pointer' },
   tagConverted: { fontSize: '0.75rem', color: 'var(--clay)', border: '1px solid var(--clay)', padding: '0.35rem 0.75rem', borderRadius: 3, display: 'inline-flex', alignItems: 'center' },
-  thread: { padding: '1.5rem 2rem', display: 'flex', flexDirection: 'column', gap: '1rem', background: '#F7F4EE', minHeight: '200px' },
+  thread: { padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', background: '#F7F4EE' },
   bubbleClient: { alignSelf: 'flex-start', maxWidth: '75%', background: 'var(--warm-white)', borderRadius: '6px 6px 6px 0', padding: '1.25rem 1.5rem', border: '1px solid rgba(139,158,126,0.15)' },
   bubbleAdmin: { alignSelf: 'flex-end', maxWidth: '75%', background: 'var(--sage)', borderRadius: '6px 6px 0 6px', padding: '1.25rem 1.5rem' },
   subject: { fontSize: '0.7rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--clay)', marginBottom: '0.75rem' },
   text: { fontSize: '0.9rem', lineHeight: 1.7, margin: 0, whiteSpace: 'pre-wrap', color: 'var(--charcoal)' },
   meta: { fontSize: '0.7rem', color: 'var(--mist)', marginTop: '0.75rem' },
-  replyForm: { margin: '0 2rem 1.5rem', background: 'var(--warm-white)', borderRadius: 6, padding: '1.25rem 1.5rem', border: '1px solid rgba(139,158,126,0.15)', flexShrink: 0 },
+  replyForm: { margin: '0 1.5rem 1.5rem', background: 'var(--warm-white)', borderRadius: 6, padding: '1.25rem 1.5rem', border: '1px solid rgba(139,158,126,0.15)', flexShrink: 0 },
   replyLabel: { display: 'block', fontSize: '0.68rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--mist)', marginBottom: '0.5rem' },
   replyArea: { width: '100%', border: '1px solid rgba(139,158,126,0.25)', borderRadius: 3, padding: '0.75rem 1rem', fontFamily: 'Jost, sans-serif', fontSize: '0.9rem', color: 'var(--charcoal)', background: 'var(--warm-white)', outline: 'none', resize: 'vertical', boxSizing: 'border-box' },
   sendBtn: { background: 'var(--sage)', color: 'var(--warm-white)', border: 'none', padding: '0.65rem 1.4rem', fontFamily: 'Jost, sans-serif', fontSize: '0.78rem', letterSpacing: '0.1em', textTransform: 'uppercase', borderRadius: 3, cursor: 'pointer' },

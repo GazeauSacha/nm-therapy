@@ -13,7 +13,7 @@ const AdminLayout = lazy(() => import('./components/AdminLayout'))
 const Dashboard = lazy(() => import('./pages/admin/Dashboard'))
 const Appointments = lazy(() => import('./pages/admin/Appointments'))
 const Clients = lazy(() => import('./pages/admin/Clients'))
-const Contacts = lazy(() => import('./pages/admin/Contacts'))
+const ContactsLayout = lazy(() => import('./pages/admin/ContactsLayout'))
 const ContactDetail = lazy(() => import('./pages/admin/ContactDetail'))
 const ClientDetail = lazy(() => import('./pages/admin/ClientDetail'))
 const Finances = lazy(() => import('./pages/admin/Finances'))
@@ -43,8 +43,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
               <Route path="clients" element={<Clients />} />
               <Route path="clients/:id" element={<ClientDetail />} />
               <Route path="messages" element={<Navigate to="/admin/contacts" replace />} />
-              <Route path="contacts" element={<Contacts />} />
-              <Route path="contacts/:id" element={<ContactDetail />} />
+              <Route path="contacts" element={<ContactsLayout />}>
+                <Route path=":id" element={<ContactDetail />} />
+              </Route>
               <Route path="finances" element={<Finances />} />
               <Route path="site" element={<SiteContent />} />
               <Route path="formations" element={<Formations />} />

@@ -811,15 +811,8 @@ export default function Home() {
           <div className="footerCol">
             <h3>{t("footer.col_activities")}</h3>
             <ul>
-              {[
-                "Life Coaching",
-                "Love Coaching",
-                "Hypnose",
-                "Thérapie couple",
-                "Sexothérapie",
-                "EMDR",
-              ].map((l) => (
-                <li key={l}>
+              {activities.map((a) => (
+                <li key={a.id}>
                   <a
                     href="#services"
                     onClick={(e) => {
@@ -827,7 +820,7 @@ export default function Home() {
                       scrollTo("services");
                     }}
                   >
-                    {l}
+                    {a.title}
                   </a>
                 </li>
               ))}
