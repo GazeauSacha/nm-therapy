@@ -69,6 +69,14 @@
     "title": "Formations &",
     "title_em": "Habilitations"
   },
+  "pricing": {
+    "eyebrow": "Tarifs",
+    "title": "Des tarifs",
+    "title_em": "adaptés",
+    "title_2": " à votre situation",
+    "subtitle": "Adapté à votre situation personnelle et professionnelle.",
+    "cancellation_title": "⚠ Politique d'annulation"
+  },
   "contact": {
     "eyebrow": "Contact",
     "title": "Votre chemin commence",

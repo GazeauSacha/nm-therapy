@@ -15,6 +15,7 @@ interface SiteContent {
   cancellation_policy: string;
   form_active: string;
   ticker_items: string;
+  ticker_items_nl: string;
   ticker_speed: string;
   hero_title_nl: string;
   hero_subtitle_nl: string;
@@ -51,6 +52,7 @@ const CONTENT_DEFAULTS: SiteContent = {
     "Si vous ne pouvez pas assister à votre séance, merci de la déprogrammer au moins 48 heures à l'avance. Dans le cas contraire, elle vous sera facturée.",
   form_active: "true",
   ticker_items: "",
+  ticker_items_nl: "",
   ticker_speed: "normal",
   hero_title_nl: "",
   hero_subtitle_nl: "",
@@ -84,9 +86,9 @@ export default function Home() {
   const lang = i18n.language;
 
   const [siteContent, setSiteContent] = useState<SiteContent>(CONTENT_DEFAULTS);
-  const [formations, setFormations] = useState<any[]>([]);
-  const [activities, setActivities] = useState<any[]>([]);
-  const [offers, setOffers] = useState<any[]>([]);
+  const [formations, setFormations] = useState<any[] | null>(null);
+  const [activities, setActivities] = useState<any[] | null>(null);
+  const [offers, setOffers] = useState<any[] | null>(null);
   const [formData, setFormData] = useState<FormData>({
     prenom: "",
     nom: "",
@@ -175,11 +177,12 @@ export default function Home() {
     localStorage.setItem("lang", lng);
   };
 
-  const tickerArr = siteContent.ticker_items
-    ? siteContent.ticker_items
-        .split("|")
-        .map((item) => item.trim())
-        .filter(Boolean)
+  const tickerSource =
+    lang === "nl" && siteContent.ticker_items_nl?.trim()
+      ? siteContent.ticker_items_nl
+      : siteContent.ticker_items;
+  const tickerArr = tickerSource
+    ? tickerSource.split("|").map((item) => item.trim()).filter(Boolean)
     : TICKER_DEFAULTS;
   const tickerDuration = TICKER_SPEED[siteContent.ticker_speed] || "30s";
 
@@ -233,23 +236,15 @@ export default function Home() {
             Nancy M <span>Therapy</span>
           </a>
           <ul className="navLinks">
-            {(
-              ["about", "services", "approche", "contact"] as const
-            ).map((id) => (
-              <li key={id}>
-                <a
-                  href={`#${id}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    scrollTo(id);
-                  }}
-                >
-                  {t(
-                    `nav.${id === "approche" ? "approach" : id}`,
-                  )}
-                </a>
-              </li>
-            ))}
+            <li><a href="#about" onClick={(e) => { e.preventDefault(); scrollTo("about"); }}>{t("nav.about")}</a></li>
+            {(activities === null || activities.length > 0) && (
+              <li><a href="#services" onClick={(e) => { e.preventDefault(); scrollTo("services"); }}>{t("nav.services")}</a></li>
+            )}
+            <li><a href="#approche" onClick={(e) => { e.preventDefault(); scrollTo("approche"); }}>{t("nav.approach")}</a></li>
+            {(offers === null || offers.length > 0) && (
+              <li><a href="#tarifs" onClick={(e) => { e.preventDefault(); scrollTo("tarifs"); }}>{t("nav.pricing")}</a></li>
+            )}
+            <li><a href="#contact" onClick={(e) => { e.preventDefault(); scrollTo("contact"); }}>{t("nav.contact")}</a></li>
           </ul>
           <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
             <div style={langSwitch}>
@@ -294,20 +289,20 @@ export default function Home() {
       {menuOpen && (
         <div className="mobileMenu">
           {[
-            ["about", t("nav.about")],
-            ["services", t("nav.services")],
-            ["approche", t("nav.approach")],
-            ["tarifs", t("nav.pricing")],
-            ["contact", t("nav.contact")],
-          ].map(([id, label]) => (
+            ["about", t("nav.about"), true],
+            ["services", t("nav.services"), activities === null || activities.length > 0],
+            ["approche", t("nav.approach"), true],
+            ["tarifs", t("nav.pricing"), offers === null || offers.length > 0],
+            ["contact", t("nav.contact"), true],
+          ].filter(([,, show]) => show).map(([id, label]) => (
             <a
-              key={id}
+              key={id as string}
               href={`#${id}`}
               className="mobileMenuLink"
               onClick={(e) => {
                 e.preventDefault();
                 setMenuOpen(false);
-                setTimeout(() => scrollTo(id), 100);
+                setTimeout(() => scrollTo(id as string), 100);
               }}
             >
               {label}
@@ -444,45 +439,47 @@ export default function Home() {
         </section>
 
         {/* SERVICES */}
-        <section className="services" id="services">
-          <div className="servicesHeader reveal">
-            <p className="eyebrow eyebrowCenter">{t("services.eyebrow")}</p>
-            <h2 className="sectionTitle">
-              {t("services.title")} <em>{t("services.title_em")}</em>
-            </h2>
-            <p className="text">{t("services.subtitle")}</p>
-          </div>
-          <div className="servicesGrid">
-            {activities.map((svc: any) => (
-              <div key={svc.id} className="serviceCard reveal">
-                <span className="serviceNum">{svc.num}</span>
-                <div className="serviceIcon">{getIcon(svc.icon_name)}</div>
-                <h3 className="serviceTitle">{nlField(svc, "title")}</h3>
-                <p className="serviceDesc">{nlField(svc, "description")}</p>
-                <div className="serviceTags">
-                  {nlField(svc, "tags")
-                    .split("|")
-                    .filter(Boolean)
-                    .map((tag: string) => (
-                      <span key={tag} className="serviceTag">
-                        {tag.trim()}
-                      </span>
-                    ))}
+        {activities && activities.length > 0 && (
+          <section className="services" id="services">
+            <div className="servicesHeader reveal">
+              <p className="eyebrow eyebrowCenter">{t("services.eyebrow")}</p>
+              <h2 className="sectionTitle">
+                {t("services.title")} <em>{t("services.title_em")}</em>
+              </h2>
+              <p className="text">{t("services.subtitle")}</p>
+            </div>
+            <div className="servicesGrid">
+              {activities.map((svc: any) => (
+                <div key={svc.id} className="serviceCard reveal">
+                  <span className="serviceNum">{svc.num}</span>
+                  <div className="serviceIcon">{getIcon(svc.icon_name)}</div>
+                  <h3 className="serviceTitle">{nlField(svc, "title")}</h3>
+                  <p className="serviceDesc">{nlField(svc, "description")}</p>
+                  <div className="serviceTags">
+                    {nlField(svc, "tags")
+                      .split("|")
+                      .filter(Boolean)
+                      .map((tag: string) => (
+                        <span key={tag} className="serviceTag">
+                          {tag.trim()}
+                        </span>
+                      ))}
+                  </div>
+                  <a
+                    href="#contact"
+                    className="serviceLink"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      scrollTo("contact");
+                    }}
+                  >
+                    {t("services.link")}
+                  </a>
                 </div>
-                <a
-                  href="#contact"
-                  className="serviceLink"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    scrollTo("contact");
-                  }}
-                >
-                  {t("services.link")}
-                </a>
-              </div>
-            ))}
-          </div>
-        </section>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* DISTANCIEL */}
         <section className="distanciel">
@@ -529,7 +526,7 @@ export default function Home() {
         </section>
 
         {/* FORMATIONS */}
-        {formations.length > 0 && (
+        {formations && formations.length > 0 && (
           <section
             style={{ padding: "5rem 6rem", background: "var(--warm-white)" }}
             id="formations"
@@ -649,6 +646,66 @@ export default function Home() {
             </div>
           </section>
         )}
+        {/* TARIFS */}
+        {offers && offers.length > 0 && (
+          <section id="tarifs" style={{ padding: '5rem 6rem', background: 'var(--sage-pale)' }}>
+            <div className="reveal" style={{ textAlign: 'center', maxWidth: 600, margin: '0 auto 3rem' }}>
+              <p className="eyebrow eyebrowCenter">{t("pricing.eyebrow")}</p>
+              <h2 className="sectionTitle">
+                {t("pricing.title")} <em>{t("pricing.title_em")}</em>{t("pricing.title_2")}
+              </h2>
+              <p className="text">{t("pricing.subtitle")}</p>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem', maxWidth: 900, margin: '0 auto' }}>
+              {offers.map((o) => (
+                <div key={o.id} className="reveal" style={{
+                  background: 'var(--warm-white)',
+                  border: o.featured ? '1px solid rgba(139,158,126,0.5)' : '1px solid rgba(139,158,126,0.15)',
+                  borderRadius: 8,
+                  padding: '2.5rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.75rem',
+                }}>
+                  <div style={{ fontSize: '0.68rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--clay)' }}>
+                    {nlField(o, 'label')}
+                  </div>
+                  <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.9rem', fontWeight: 300, color: 'var(--charcoal)' }}>
+                    {nlField(o, 'price') || o.price}
+                  </div>
+                  {(o.detail || o.detail_nl) && (
+                    <p style={{ fontSize: '0.85rem', color: 'var(--mist)', lineHeight: 1.7, margin: 0 }}>
+                      {nlField(o, 'detail')}
+                    </p>
+                  )}
+                  {(o.note || o.note_nl) && (
+                    <p style={{ fontSize: '0.78rem', color: 'var(--mist)', fontStyle: 'italic', lineHeight: 1.5, margin: 0 }}>
+                      {nlField(o, 'note')}
+                    </p>
+                  )}
+                  <a
+                    href="#contact"
+                    style={{ marginTop: 'auto', display: 'inline-block', background: 'var(--sage)', color: 'var(--warm-white)', padding: '0.65rem 1.4rem', borderRadius: 3, fontFamily: 'Jost, sans-serif', fontSize: '0.78rem', letterSpacing: '0.1em', textTransform: 'uppercase', textDecoration: 'none', alignSelf: 'flex-start' }}
+                    onClick={(e) => { e.preventDefault(); scrollTo('contact'); }}
+                  >
+                    {nlField(o, 'btn_text') || t('nav.cta')}
+                  </a>
+                </div>
+              ))}
+            </div>
+            {c("cancellation_policy") && (
+              <div className="reveal" style={{ maxWidth: 700, margin: '3rem auto 0', padding: '1.5rem 2rem', background: 'rgba(255,255,255,0.6)', borderRadius: 6, border: '1px solid rgba(139,158,126,0.1)' }}>
+                <p style={{ fontSize: '0.72rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--clay)', marginBottom: '0.5rem' }}>
+                  {t("pricing.cancellation_title")}
+                </p>
+                <p style={{ fontSize: '0.85rem', color: 'var(--mist)', lineHeight: 1.7, margin: 0 }}>
+                  {c("cancellation_policy")}
+                </p>
+              </div>
+            )}
+          </section>
+        )}
+
         {/* CONTACT */}
         <section className="contact" id="contact">
           <div className="reveal">
@@ -808,44 +865,29 @@ export default function Home() {
             <p className="footerTagline">{t("footer.tagline")}</p>
             <p className="footerTva">{t("footer.tva")}</p>
           </div>
-          <div className="footerCol">
-            <h3>{t("footer.col_activities")}</h3>
-            <ul>
-              {activities.map((a) => (
-                <li key={a.id}>
-                  <a
-                    href="#services"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      scrollTo("services");
-                    }}
-                  >
-                    {a.title}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {activities && activities.length > 0 && (
+            <div className="footerCol">
+              <h3>{t("footer.col_activities")}</h3>
+              <ul>
+                {activities.map((a) => (
+                  <li key={a.id}>
+                    <a href="#services" onClick={(e) => { e.preventDefault(); scrollTo("services"); }}>
+                      {nlField(a, 'title')}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           <div className="footerCol">
             <h3>{t("footer.col_navigation")}</h3>
             <ul>
-              {[
-                ["about", t("footer.link_about")],
-                ["approche", t("footer.link_approach")],
-                ["contact", t("footer.link_contact")],
-              ].map(([id, label]) => (
-                <li key={id}>
-                  <a
-                    href={`#${id}`}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      scrollTo(id);
-                    }}
-                  >
-                    {label}
-                  </a>
-                </li>
-              ))}
+              <li><a href="#about" onClick={(e) => { e.preventDefault(); scrollTo("about"); }}>{t("footer.link_about")}</a></li>
+              <li><a href="#approche" onClick={(e) => { e.preventDefault(); scrollTo("approche"); }}>{t("footer.link_approach")}</a></li>
+              {offers && offers.length > 0 && (
+                <li><a href="#tarifs" onClick={(e) => { e.preventDefault(); scrollTo("tarifs"); }}>{t("footer.link_pricing")}</a></li>
+              )}
+              <li><a href="#contact" onClick={(e) => { e.preventDefault(); scrollTo("contact"); }}>{t("footer.link_contact")}</a></li>
             </ul>
           </div>
           <div className="footerCol">

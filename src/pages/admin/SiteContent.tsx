@@ -12,6 +12,7 @@ interface SiteFields {
   ticker_items: string; ticker_speed: string;
   hero_title_nl: string; hero_subtitle_nl: string; hero_quote_nl: string; hero_tagline_nl: string;
   about_text_1_nl: string; about_text_2_nl: string; cancellation_policy_nl: string;
+  ticker_items_nl: string;
 }
 
 const DEFAULTS: SiteFields = {
@@ -30,7 +31,7 @@ const DEFAULTS: SiteFields = {
   ticker_items: 'Life & Love Coaching|Hypnothérapie|EMDR|Thérapie de couple & famille|Sexothérapie|Psycho-Trauma|Guidance intuitive|Constellation familiale|Distanciel · Meet · Zoom · WhatsApp',
   ticker_speed: 'normal',
   hero_title_nl: '', hero_subtitle_nl: '', hero_quote_nl: '', hero_tagline_nl: '',
-  about_text_1_nl: '', about_text_2_nl: '', cancellation_policy_nl: '',
+  about_text_1_nl: '', about_text_2_nl: '', cancellation_policy_nl: '', ticker_items_nl: '',
 }
 
 export default function SiteContent() {
@@ -98,22 +99,36 @@ export default function SiteContent() {
               <Fg label="Paragraphe 2" value={isFr ? fields.about_text_2 : fields.about_text_2_nl} onChange={set(isFr ? 'about_text_2' : 'about_text_2_nl')} textarea />
             </Section>
 
-            {isFr && (
-              <Section title="Bandeau défilant (ticker)">
-                <Fg label="Phrases du ticker (séparées par |)" value={fields.ticker_items} onChange={set('ticker_items')} textarea />
-                <div style={{ marginBottom: '1rem' }}>
-                  <label style={s.label}>Vitesse de défilement</label>
-                  <select style={s.input} value={fields.ticker_speed} onChange={set('ticker_speed')}>
-                    <option value="slow">Lent</option>
-                    <option value="normal">Normal</option>
-                    <option value="fast">Rapide</option>
-                  </select>
-                </div>
-              </Section>
-            )}
+            <Section title={isFr ? "Bandeau défilant (ticker)" : "Schuifbanner (ticker)"}>
+              {isFr ? (
+                <>
+                  <Fg label="Phrases du ticker (séparées par |)" value={fields.ticker_items} onChange={set('ticker_items')} textarea />
+                  <div style={{ marginBottom: '1rem' }}>
+                    <label style={s.label}>Vitesse de défilement</label>
+                    <select style={s.input} value={fields.ticker_speed} onChange={set('ticker_speed')}>
+                      <option value="slow">Lent</option>
+                      <option value="normal">Normal</option>
+                      <option value="fast">Rapide</option>
+                    </select>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--mist)', marginBottom: '0.75rem', fontStyle: 'italic' }}>
+                    FR : {fields.ticker_items || '(par défaut)'}
+                  </div>
+                  <Fg label="Phrases du ticker (NL, séparées par |)" value={fields.ticker_items_nl} onChange={set('ticker_items_nl')} textarea />
+                </>
+              )}
+            </Section>
 
-            <Section title={isFr ? "Politique d'annulation (FR)" : "Annuleringsbeleid (NL)"}>
+            <Section title={isFr ? "Politique d'annulation" : "Annuleringsbeleid"}>
               {isFr && <Fg label="Note sur les tarifs" value={fields.pricing_note} onChange={set('pricing_note')} textarea />}
+              {!isFr && fields.cancellation_policy && (
+                <div style={{ fontSize: '0.75rem', color: 'var(--mist)', marginBottom: '0.75rem', fontStyle: 'italic' }}>
+                  FR : {fields.cancellation_policy}
+                </div>
+              )}
               <Fg
                 label={isFr ? "Politique d'annulation" : "Annuleringsbeleid"}
                 value={isFr ? fields.cancellation_policy : fields.cancellation_policy_nl}
