@@ -27,7 +27,7 @@ export async function sendEmail({
     "Nancy M Therapy <noreply@nancymtherapy.be>";
 
   const inboundAddress =
-    process.env.RESEND_INBOUND_ADDRESS || "contact@nancymtherapy.com";
+    process.env.RESEND_INBOUND_ADDRESS || "contact@nancymtherapy.be";
 
   const payload: Record<string, any> = { from, to, subject, html, reply_to: replyTo || inboundAddress };
 
