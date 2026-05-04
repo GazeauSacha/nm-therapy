@@ -77,7 +77,7 @@ export default async function handler(req: any, res: any) {
       const emailRes = await fetch(`https://api.resend.com/emails/receiving/${email_id}`, {
         headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}` },
       });
-      const emailData = await emailRes.json();
+      const emailData = await emailRes.json() as any;
       console.log("[resend-inbound] received email data:", JSON.stringify(emailData));
       if (emailRes.ok) {
         text = emailData.text ?? emailData.text_body ?? "";
