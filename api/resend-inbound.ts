@@ -26,6 +26,25 @@ function verifySignature(secret: string, msgId: string, timestamp: string, rawBo
   });
 }
 
+function extractReply(html: string, text: string): string {
+  if (html) {
+    const cleaned = html
+      .replace(/<br\s*\/?>\s*<div[^>]*class="gmail_quote[^"]*"[\s\S]*/i, "")
+      .replace(/<div[^>]*class="gmail_quote[^"]*"[\s\S]*/i, "")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&").replace(/&nbsp;/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (cleaned) return cleaned;
+  }
+  if (text) {
+    const lines = text.split("\n");
+    const cutAt = lines.findIndex(l => l.startsWith(">") || /^Le\s+\w/.test(l) || /^On\s+\w/.test(l));
+    return (cutAt > 0 ? lines.slice(0, cutAt) : lines).join("\n").trim();
+  }
+  return "";
+}
+
 export default async function handler(req: any, res: any) {
   if (req.method !== "POST") return res.status(405).end();
 
@@ -58,10 +77,11 @@ export default async function handler(req: any, res: any) {
       const emailRes = await fetch(`https://api.resend.com/emails/receiving/${email_id}`, {
         headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}` },
       });
+      const emailData = await emailRes.json();
+      console.log("[resend-inbound] received email data:", JSON.stringify(emailData));
       if (emailRes.ok) {
-        const emailData = await emailRes.json();
-        text = emailData.text ?? "";
-        html = emailData.html ?? "";
+        text = emailData.text ?? emailData.text_body ?? "";
+        html = emailData.html ?? emailData.html_body ?? "";
       }
     }
 
@@ -77,7 +97,7 @@ export default async function handler(req: any, res: any) {
 
     if (!contact) return res.status(200).json({ skipped: "no contact found" });
 
-    const message = ((text as string) || ((html as string) || "").replace(/<[^>]+>/g, "")).trim();
+    const message = extractReply(html, text);
 
     await db.from("replies").insert([{
       contact_id: contact.id,
