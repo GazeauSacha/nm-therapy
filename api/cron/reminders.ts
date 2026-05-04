@@ -12,14 +12,9 @@ export default async function handler(req: any, res: any) {
 
     const windows = {
       "24h": {
-        from: new Date(now.getTime() + 23 * 3600 * 1000).toISOString(),
-        to: new Date(now.getTime() + 25 * 3600 * 1000).toISOString(),
+        from: new Date(now.getTime() + 16 * 3600 * 1000).toISOString(),
+        to: new Date(now.getTime() + 40 * 3600 * 1000).toISOString(),
         flag: "reminder_24h_sent",
-      },
-      "1h": {
-        from: new Date(now.getTime() + 50 * 60 * 1000).toISOString(),
-        to: new Date(now.getTime() + 70 * 60 * 1000).toISOString(),
-        flag: "reminder_1h_sent",
       },
     };
 
