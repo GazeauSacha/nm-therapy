@@ -44,7 +44,8 @@ export default async function handler(req: any, res: any) {
     }
 
     const body = JSON.parse(rawBody);
-    const { from, text, html } = body;
+    const payload = body.data ?? body;
+    const { from, text, html } = payload;
 
     const emailMatch = (from as string)?.match(/<(.+?)>/);
     const senderEmail = emailMatch ? emailMatch[1] : from;
