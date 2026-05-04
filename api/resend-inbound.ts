@@ -45,11 +45,25 @@ export default async function handler(req: any, res: any) {
 
     const body = JSON.parse(rawBody);
     const payload = body.data ?? body;
-    const { from, text, html } = payload;
+    const { from, email_id } = payload;
 
     const emailMatch = (from as string)?.match(/<(.+?)>/);
     const senderEmail = emailMatch ? emailMatch[1] : from;
     if (!senderEmail) return res.status(400).json({ error: "No sender" });
+
+    // Fetch full email content from Resend API
+    let text = "";
+    let html = "";
+    if (email_id && process.env.RESEND_API_KEY) {
+      const emailRes = await fetch(`https://api.resend.com/emails/receiving/${email_id}`, {
+        headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}` },
+      });
+      if (emailRes.ok) {
+        const emailData = await emailRes.json();
+        text = emailData.text ?? "";
+        html = emailData.html ?? "";
+      }
+    }
 
     const db = getAdmin();
 
