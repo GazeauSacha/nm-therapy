@@ -26,9 +26,8 @@ export async function sendEmail({
     process.env.RESEND_FROM_EMAIL ||
     "Nancy M Therapy <noreply@nancymtherapy.be>";
 
-  // reply_to routes client replies through Resend inbound → our webhook
   const inboundAddress =
-    process.env.RESEND_INBOUND_ADDRESS || "reply@nancymtherapy.be";
+    process.env.RESEND_INBOUND_ADDRESS || "contact@nancymtherapy.com";
 
   const payload: Record<string, any> = { from, to, subject, html, reply_to: replyTo || inboundAddress };
 

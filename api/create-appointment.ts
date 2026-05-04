@@ -32,6 +32,7 @@ export default async function handler(req: any, res: any) {
     const confirmUrl = `${siteUrl}/api/confirm-appointment?id=${appt.id}&token=${encodeURIComponent(token)}`;
     const dateFormatted = new Date(date).toLocaleString("fr-FR", {
       weekday: "long", day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit",
+      timeZone: "Europe/Brussels",
     });
 
     await sendEmail({

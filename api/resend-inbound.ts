@@ -1,5 +1,5 @@
 import { createHmac, timingSafeEqual } from "crypto";
-import { getAdmin } from "./lib/admin";
+import { getAdmin, sendEmail } from "./lib/admin";
 
 export const config = { api: { bodyParser: false } };
 
@@ -54,7 +54,7 @@ export default async function handler(req: any, res: any) {
 
     const { data: contact } = await db
       .from("contacts")
-      .select("id")
+      .select("id, first_name, last_name")
       .eq("email", senderEmail)
       .order("created_at", { ascending: false })
       .limit(1)
@@ -72,6 +72,23 @@ export default async function handler(req: any, res: any) {
     }]);
 
     await db.from("contacts").update({ read: false }).eq("id", contact.id);
+
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://nancymtherapy.be";
+    const nancyEmail = process.env.NANCY_EMAIL;
+    if (nancyEmail) {
+      await sendEmail({
+        to: nancyEmail,
+        subject: `Nouveau message de ${contact.first_name} ${contact.last_name}`,
+        html: `
+          <div style="font-family:Georgia,serif;max-width:600px;margin:0 auto;color:#333;">
+            <h2 style="font-weight:300;color:#8b9e7e;">Nouveau message reçu</h2>
+            <p><strong>${contact.first_name} ${contact.last_name}</strong> — ${senderEmail}</p>
+            <blockquote style="border-left:3px solid #8b9e7e;padding-left:1rem;color:#555;white-space:pre-wrap;">${message.slice(0, 500)}</blockquote>
+            <a href="${siteUrl}/admin/contacts/${contact.id}" style="display:inline-block;margin-top:1.5rem;background:#8b9e7e;color:#fff;padding:0.75rem 1.5rem;text-decoration:none;border-radius:3px;font-family:sans-serif;">Voir et répondre →</a>
+          </div>
+        `,
+      }).catch(console.error);
+    }
 
     return res.status(200).json({ ok: true });
   } catch (err: any) {

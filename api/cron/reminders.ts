@@ -42,6 +42,7 @@ export default async function handler(req: any, res: any) {
 
         const dateFormatted = new Date(appt.date).toLocaleString("fr-FR", {
           weekday: "long", day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit",
+          timeZone: "Europe/Brussels",
         });
 
         const isDay = label === "24h";
