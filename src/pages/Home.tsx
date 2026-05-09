@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
-import { useTranslation, Trans } from "react-i18next";
+import { Trans } from "react-i18next";
 import { supabase } from "../lib/supabase";
+import { useContent, populateDbContent } from "../hooks/useContent";
 
 interface SiteContent {
   hero_title: string;
@@ -81,8 +82,43 @@ const TICKER_SPEED: Record<string, string> = {
   fast: "15s",
 };
 
+const approachSteps = [
+  {
+    num: "01",
+    titleKey: "approach.01_title",
+    descKey: "approach.01_desc",
+    titleDefault: "Écoute & Exploration",
+    descDefault:
+      "Un premier espace d'accueil pour nommer ce qui vous pèse, identifier vos besoins profonds et co-construire vos objectifs.",
+  },
+  {
+    num: "02",
+    titleKey: "approach.02_title",
+    descKey: "approach.02_desc",
+    titleDefault: "Prise de Conscience",
+    descDefault:
+      "Exploration des schémas émotionnels. Mise en lumière de vos croyances limitantes et de vos ressources cachées.",
+  },
+  {
+    num: "03",
+    titleKey: "approach.03_title",
+    descKey: "approach.03_desc",
+    titleDefault: "Transformation Active",
+    descDefault:
+      "Mise en œuvre des outils adaptés : hypnose, EMDR, coaching, guidance intuitive, constellation familiale.",
+  },
+  {
+    num: "04",
+    titleKey: "approach.04_title",
+    descKey: "approach.04_desc",
+    titleDefault: "Ancrage & Autonomie",
+    descDefault:
+      "Consolidation des acquis pour des changements naturels et durables. Vous repartez avec votre propre boîte à outils.",
+  },
+] as const;
+
 export default function Home() {
-  const { t, i18n } = useTranslation();
+  const { c, i18n } = useContent();
   const lang = i18n.language;
 
   const [siteContent, setSiteContent] = useState<SiteContent>(CONTENT_DEFAULTS);
@@ -113,6 +149,7 @@ export default function Home() {
             obj[row.key] = row.value;
           });
           setSiteContent((prev) => ({ ...prev, ...obj }));
+          populateDbContent(obj);
         }
       });
     supabase
@@ -155,15 +192,6 @@ export default function Home() {
     return () => obs.disconnect();
   }, [activities, offers, formations]);
 
-  const c = (key: keyof SiteContent): string => {
-    if (lang === "nl") {
-      const nlKey = `${key}_nl` as keyof SiteContent;
-      const nlVal = siteContent[nlKey];
-      if (nlVal && nlVal.trim()) return nlVal;
-    }
-    return siteContent[key] || CONTENT_DEFAULTS[key] || "";
-  };
-
   const nlField = (item: any, field: string): string => {
     if (lang === "nl") {
       const v = item[`${field}_nl`];
@@ -186,16 +214,9 @@ export default function Home() {
     : TICKER_DEFAULTS;
   const tickerDuration = TICKER_SPEED[siteContent.ticker_speed] || "30s";
 
-  const phone = siteContent.contact_phone || CONTENT_DEFAULTS.contact_phone;
-  const email = siteContent.contact_email || CONTENT_DEFAULTS.contact_email;
+  const phone = c("contact_phone", CONTENT_DEFAULTS.contact_phone);
+  const email = c("contact_email", CONTENT_DEFAULTS.contact_email);
   const phoneHref = "tel:+32" + phone.replace(/\s/g, "").replace(/^0/, "");
-
-  const approachSteps: [string, string, string][] = [
-    ["01", "approach.01_title", "approach.01_desc"],
-    ["02", "approach.02_title", "approach.02_desc"],
-    ["03", "approach.03_title", "approach.03_desc"],
-    ["04", "approach.04_title", "approach.04_desc"],
-  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -236,15 +257,15 @@ export default function Home() {
             Nancy M <span>Therapy</span>
           </a>
           <ul className="navLinks">
-            <li><a href="#about" onClick={(e) => { e.preventDefault(); scrollTo("about"); }}>{t("nav.about")}</a></li>
+            <li><a href="#about" onClick={(e) => { e.preventDefault(); scrollTo("about"); }}>{c("nav.about", "À Propos")}</a></li>
             {(activities === null || activities.length > 0) && (
-              <li><a href="#services" onClick={(e) => { e.preventDefault(); scrollTo("services"); }}>{t("nav.services")}</a></li>
+              <li><a href="#services" onClick={(e) => { e.preventDefault(); scrollTo("services"); }}>{c("nav.services", "Activités")}</a></li>
             )}
-            <li><a href="#approche" onClick={(e) => { e.preventDefault(); scrollTo("approche"); }}>{t("nav.approach")}</a></li>
+            <li><a href="#approche" onClick={(e) => { e.preventDefault(); scrollTo("approche"); }}>{c("nav.approach", "Approche")}</a></li>
             {(offers === null || offers.length > 0) && (
-              <li><a href="#tarifs" onClick={(e) => { e.preventDefault(); scrollTo("tarifs"); }}>{t("nav.pricing")}</a></li>
+              <li><a href="#tarifs" onClick={(e) => { e.preventDefault(); scrollTo("tarifs"); }}>{c("nav.pricing", "Tarifs")}</a></li>
             )}
-            <li><a href="#contact" onClick={(e) => { e.preventDefault(); scrollTo("contact"); }}>{t("nav.contact")}</a></li>
+            <li><a href="#contact" onClick={(e) => { e.preventDefault(); scrollTo("contact"); }}>{c("nav.contact", "Contact")}</a></li>
           </ul>
           <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
             <div style={langSwitch}>
@@ -270,7 +291,7 @@ export default function Home() {
                 scrollTo("contact");
               }}
             >
-              {t("nav.cta")}
+              {c("nav.cta", "Prendre Rendez-vous")}
             </a>
             <button
               className={`hamburger${menuOpen ? " hamburgerOpen" : ""}`}
@@ -289,11 +310,11 @@ export default function Home() {
       {menuOpen && (
         <div className="mobileMenu">
           {[
-            ["about", t("nav.about"), true],
-            ["services", t("nav.services"), activities === null || activities.length > 0],
-            ["approche", t("nav.approach"), true],
-            ["tarifs", t("nav.pricing"), offers === null || offers.length > 0],
-            ["contact", t("nav.contact"), true],
+            ["about", c("nav.about", "À Propos"), true],
+            ["services", c("nav.services", "Activités"), activities === null || activities.length > 0],
+            ["approche", c("nav.approach", "Approche"), true],
+            ["tarifs", c("nav.pricing", "Tarifs"), offers === null || offers.length > 0],
+            ["contact", c("nav.contact", "Contact"), true],
           ].filter(([,, show]) => show).map(([id, label]) => (
             <a
               key={id as string}
@@ -337,7 +358,7 @@ export default function Home() {
               setTimeout(() => scrollTo("contact"), 100);
             }}
           >
-            {t("nav.cta")}
+            {c("nav.cta", "Prendre Rendez-vous")}
           </button>
         </div>
       )}
@@ -348,12 +369,12 @@ export default function Home() {
         <section className="hero">
           <div className="heroBefore" />
           <div className="heroLeft">
-            <p className="heroEyebrow">{t("hero.eyebrow")}</p>
+            <p className="heroEyebrow">{c("hero.eyebrow", "Coaching Thérapeutique")}</p>
             <h1 className="heroTitle">
-              <em>{c("hero_subtitle")}</em>
+              <em>{c("hero_subtitle", CONTENT_DEFAULTS.hero_subtitle)}</em>
             </h1>
-            <p className="heroQuote">« {c("hero_quote")} »</p>
-            <p className="heroSub">{c("hero_tagline")}</p>
+            <p className="heroQuote">« {c("hero_quote", CONTENT_DEFAULTS.hero_quote)} »</p>
+            <p className="heroSub">{c("hero_tagline", CONTENT_DEFAULTS.hero_tagline)}</p>
             <div className="heroActions">
               <a
                 href="#contact"
@@ -363,7 +384,7 @@ export default function Home() {
                   scrollTo("contact");
                 }}
               >
-                {t("hero.btn_contact")}
+                {c("hero.btn_contact", "Prendre contact")}
               </a>
               <a
                 href="#services"
@@ -373,7 +394,7 @@ export default function Home() {
                   scrollTo("services");
                 }}
               >
-                {t("hero.btn_services")}
+                {c("hero.btn_services", "Mes activités")}
               </a>
             </div>
           </div>
@@ -382,8 +403,8 @@ export default function Home() {
               <BotanicalSVG />
             </div>
             {/* <div className="heroQuoteCard">
-              <blockquote>{t("hero.quote_card")}</blockquote>
-              <cite>{c("hero_title")}</cite>
+              <blockquote>{c("hero.quote_card", "« Devenir soi-même est le plus beau des voyages. »")}</blockquote>
+              <cite>{c("hero_title", CONTENT_DEFAULTS.hero_title)}</cite>
             </div> */}
           </div>
         </section>
@@ -417,24 +438,24 @@ export default function Home() {
               </div>
               <div className="aboutBadge">
                 <span>8+</span>
-                {t("about.badge")}
+                {c("about.badge", "outils\nthérapeutiques")}
               </div>
             </div>
           </div>
           <div className="aboutContent reveal">
-            <p className="eyebrow">{t("about.eyebrow")}</p>
+            <p className="eyebrow">{c("about.eyebrow", "À Propos")}</p>
             <h2 className="sectionTitle">
-              {t("about.title")} <em>{t("about.title_em")}</em>
+              {c("about.title", "Une thérapeute à votre")} <em>{c("about.title_em", "écoute")}</em>
             </h2>
-            <p className="text">{c("about_text_1")}</p>
-            <p className="text">{c("about_text_2")}</p>
+            <p className="text">{c("about_text_1", CONTENT_DEFAULTS.about_text_1)}</p>
+            <p className="text">{c("about_text_2", CONTENT_DEFAULTS.about_text_2)}</p>
             <p className="text">
               <Trans
                 i18nKey="about.paragraph3"
                 components={{ strong: <strong /> }}
               />
             </p>
-            <div className="signature">{c("hero_title")}</div>
+            <div className="signature">{c("hero_title", CONTENT_DEFAULTS.hero_title)}</div>
           </div>
         </section>
 
@@ -442,11 +463,11 @@ export default function Home() {
         {activities && activities.length > 0 && (
           <section className="services" id="services">
             <div className="servicesHeader reveal">
-              <p className="eyebrow eyebrowCenter">{t("services.eyebrow")}</p>
+              <p className="eyebrow eyebrowCenter">{c("services.eyebrow", "Mes Activités")}</p>
               <h2 className="sectionTitle">
-                {t("services.title")} <em>{t("services.title_em")}</em>
+                {c("services.title", "Des outils pour")} <em>{c("services.title_em", "chaque chemin")}</em>
               </h2>
-              <p className="text">{t("services.subtitle")}</p>
+              <p className="text">{c("services.subtitle", "Une approche holistique et pluridisciplinaire pour vous accompagner là où vous en avez besoin.")}</p>
             </div>
             <div className="servicesGrid">
               {activities.map((svc: any) => (
@@ -473,7 +494,7 @@ export default function Home() {
                       scrollTo("contact");
                     }}
                   >
-                    {t("services.link")}
+                    {c("services.link", "Prendre contact")}
                   </a>
                 </div>
               ))}
@@ -485,12 +506,12 @@ export default function Home() {
         <section className="distanciel">
           <div className="reveal">
             <h2 className="distancielTitle">
-              {t("distanciel.title_1")} <em>{t("distanciel.title_em")}</em>
-              {t("distanciel.title_2")}
+              {c("distanciel.title_1", "Séances")} <em>{c("distanciel.title_em", "100% à distance")}</em>
+              {c("distanciel.title_2", ", où que vous soyez")}
             </h2>
           </div>
           <div className="reveal">
-            <p className="distancielText">{t("distanciel.text")}</p>
+            <p className="distancielText">{c("distanciel.text", "Je vous reçois uniquement en distanciel pour vous offrir la flexibilité dont vous avez besoin. Choisissez la plateforme qui vous convient.")}</p>
             <div className="platforms">
               <span className="platform">📹 Google Meet</span>
               <span className="platform">💬 WhatsApp</span>
@@ -502,17 +523,17 @@ export default function Home() {
         {/* APPROCHE */}
         <section className="process" id="approche">
           <div className="reveal">
-            <p className="eyebrow">{t("approach.eyebrow")}</p>
+            <p className="eyebrow">{c("approach.eyebrow", "Ma Démarche")}</p>
             <h2 className="sectionTitle">
-              {t("approach.title")} <em>{t("approach.title_em")}</em>
+              {c("approach.title", "Un chemin en quatre")} <em>{c("approach.title_em", "étapes fondatrices")}</em>
             </h2>
             <div className="processSteps">
-              {approachSteps.map(([num, titleKey, descKey]) => (
-                <div key={num} className="processStep">
-                  <span className="stepNum">{num}</span>
+              {approachSteps.map((step) => (
+                <div key={step.num} className="processStep">
+                  <span className="stepNum">{step.num}</span>
                   <div>
-                    <h3 className="stepTitle">{t(titleKey)}</h3>
-                    <p className="stepDesc">{t(descKey)}</p>
+                    <h3 className="stepTitle">{c(step.titleKey, step.titleDefault)}</h3>
+                    <p className="stepDesc">{c(step.descKey, step.descDefault)}</p>
                   </div>
                 </div>
               ))}
@@ -539,9 +560,9 @@ export default function Home() {
                 margin: "0 auto 3rem",
               }}
             >
-              <p className="eyebrow eyebrowCenter">{t("formations.eyebrow")}</p>
+              <p className="eyebrow eyebrowCenter">{c("formations.eyebrow", "Parcours")}</p>
               <h2 className="sectionTitle">
-                {t("formations.title")} <em>{t("formations.title_em")}</em>
+                {c("formations.title", "Formations &")} <em>{c("formations.title_em", "Habilitations")}</em>
               </h2>
             </div>
             <div
@@ -650,11 +671,11 @@ export default function Home() {
         {offers && offers.length > 0 && (
           <section id="tarifs" style={{ padding: '5rem 6rem', background: 'var(--sage-pale)' }}>
             <div className="reveal" style={{ textAlign: 'center', maxWidth: 600, margin: '0 auto 3rem' }}>
-              <p className="eyebrow eyebrowCenter">{t("pricing.eyebrow")}</p>
+              <p className="eyebrow eyebrowCenter">{c("pricing.eyebrow", "Tarifs")}</p>
               <h2 className="sectionTitle">
-                {t("pricing.title")} <em>{t("pricing.title_em")}</em>{t("pricing.title_2")}
+                {c("pricing.title", "Des tarifs")} <em>{c("pricing.title_em", "adaptés")}</em>{c("pricing.title_2", " à votre situation")}
               </h2>
-              <p className="text">{t("pricing.subtitle")}</p>
+              <p className="text">{c("pricing.subtitle", "Adapté à votre situation personnelle et professionnelle.")}</p>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem', maxWidth: 900, margin: '0 auto' }}>
               {offers.map((o) => (
@@ -688,18 +709,18 @@ export default function Home() {
                     style={{ marginTop: 'auto', display: 'inline-block', background: 'var(--sage)', color: 'var(--warm-white)', padding: '0.65rem 1.4rem', borderRadius: 3, fontFamily: 'Jost, sans-serif', fontSize: '0.78rem', letterSpacing: '0.1em', textTransform: 'uppercase', textDecoration: 'none', alignSelf: 'flex-start' }}
                     onClick={(e) => { e.preventDefault(); scrollTo('contact'); }}
                   >
-                    {nlField(o, 'btn_text') || t('nav.cta')}
+                    {nlField(o, 'btn_text') || c('nav.cta', 'Prendre Rendez-vous')}
                   </a>
                 </div>
               ))}
             </div>
-            {c("cancellation_policy") && (
+            {c("cancellation_policy", CONTENT_DEFAULTS.cancellation_policy) && (
               <div className="reveal" style={{ maxWidth: 700, margin: '3rem auto 0', padding: '1.5rem 2rem', background: 'rgba(255,255,255,0.6)', borderRadius: 6, border: '1px solid rgba(139,158,126,0.1)' }}>
                 <p style={{ fontSize: '0.72rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--clay)', marginBottom: '0.5rem' }}>
-                  {t("pricing.cancellation_title")}
+                  {c("pricing.cancellation_title", "⚠ Politique d'annulation")}
                 </p>
                 <p style={{ fontSize: '0.85rem', color: 'var(--mist)', lineHeight: 1.7, margin: 0 }}>
-                  {c("cancellation_policy")}
+                  {c("cancellation_policy", CONTENT_DEFAULTS.cancellation_policy)}
                 </p>
               </div>
             )}
@@ -709,11 +730,11 @@ export default function Home() {
         {/* CONTACT */}
         <section className="contact" id="contact">
           <div className="reveal">
-            <p className="eyebrow">{t("contact.eyebrow")}</p>
+            <p className="eyebrow">{c("contact.eyebrow", "Contact")}</p>
             <h2 className="contactTitle">
-              {t("contact.title")} <em>{t("contact.title_em")}</em>
+              {c("contact.title", "Votre chemin commence")} <em>{c("contact.title_em", "ici")}</em>
             </h2>
-            <p className="text">{t("contact.subtitle")}</p>
+            <p className="text">{c("contact.subtitle", "Remplissez le formulaire ou contactez-moi directement.")}</p>
             <div className="contactDetails">
               <div className="contactDetail">
                 <div className="detailIcon">
@@ -731,7 +752,7 @@ export default function Home() {
                 <div className="detailIcon">
                   <VideoIcon />
                 </div>
-                <span>{t("contact.platforms")}</span>
+                <span>{c("contact.platforms", "Meet · WhatsApp · Zoom")}</span>
               </div>
             </div>
           </div>
@@ -748,10 +769,10 @@ export default function Home() {
                     marginBottom: "0.75rem",
                   }}
                 >
-                  {t("contact.success_title")}
+                  {c("contact.success_title", "Message envoyé !")}
                 </h3>
                 <p style={{ fontSize: "0.9rem", color: "var(--mist)" }}>
-                  {t("contact.success_text")}
+                  {c("contact.success_text", "Nancy vous recontactera dans les meilleurs délais.")}
                 </p>
               </div>
             ) : siteContent.form_active === "false" ? (
@@ -765,71 +786,71 @@ export default function Home() {
                     marginBottom: "0.75rem",
                   }}
                 >
-                  {t("contact.disabled_title")}
+                  {c("contact.disabled_title", "Formulaire temporairement indisponible")}
                 </h3>
                 <p style={{ fontSize: "0.9rem", color: "var(--mist)" }}>
-                  {t("contact.disabled_text")}
+                  {c("contact.disabled_text", "Contactez-moi directement par email ou téléphone.")}
                 </p>
               </div>
             ) : (
               <>
                 <div className="formRow">
                   <div className="formGroup">
-                    <label>{t("contact.form_firstname")}</label>
+                    <label>{c("contact.form_firstname", "Prénom")}</label>
                     <input
                       type="text"
                       value={formData.prenom}
                       onChange={(e) =>
                         setFormData((p) => ({ ...p, prenom: e.target.value }))
                       }
-                      placeholder={t("contact.ph_firstname")}
+                      placeholder={c("contact.ph_firstname", "Votre prénom")}
                       required
                     />
                   </div>
                   <div className="formGroup">
-                    <label>{t("contact.form_lastname")}</label>
+                    <label>{c("contact.form_lastname", "Nom")}</label>
                     <input
                       type="text"
                       value={formData.nom}
                       onChange={(e) =>
                         setFormData((p) => ({ ...p, nom: e.target.value }))
                       }
-                      placeholder={t("contact.ph_lastname")}
+                      placeholder={c("contact.ph_lastname", "Votre nom")}
                       required
                     />
                   </div>
                 </div>
                 <div className="formGroup">
-                  <label>{t("contact.form_email")}</label>
+                  <label>{c("contact.form_email", "Email")}</label>
                   <input
                     type="email"
                     value={formData.email}
                     onChange={(e) =>
                       setFormData((p) => ({ ...p, email: e.target.value }))
                     }
-                    placeholder={t("contact.ph_email")}
+                    placeholder={c("contact.ph_email", "votre@email.com")}
                     required
                   />
                 </div>
                 <div className="formGroup">
-                  <label>{t("contact.form_phone")}</label>
+                  <label>{c("contact.form_phone", "Téléphone")}</label>
                   <input
                     type="tel"
                     value={formData.telephone}
                     onChange={(e) =>
                       setFormData((p) => ({ ...p, telephone: e.target.value }))
                     }
-                    placeholder={t("contact.ph_phone")}
+                    placeholder={c("contact.ph_phone", "0495 XX XX XX")}
                   />
                 </div>
                 <div className="formGroup">
-                  <label>{t("contact.form_message")}</label>
+                  <label>{c("contact.form_message", "Message")}</label>
                   <textarea
                     value={formData.message}
                     onChange={(e) =>
                       setFormData((p) => ({ ...p, message: e.target.value }))
                     }
-                    placeholder={t("contact.ph_message")}
+                    placeholder={c("contact.ph_message", "Partagez brièvement ce qui vous amène…")}
                     rows={4}
                   />
                 </div>
@@ -846,8 +867,8 @@ export default function Home() {
                 )}
                 <button type="submit" className="btnSubmit" disabled={sending}>
                   {sending
-                    ? t("contact.form_sending")
-                    : t("contact.form_submit")}
+                    ? c("contact.form_sending", "Envoi en cours…")
+                    : c("contact.form_submit", "Envoyer ma demande")}
                 </button>
               </>
             )}
@@ -862,12 +883,12 @@ export default function Home() {
             <div className="footerLogo">
               Nancy M <span>Therapy</span>
             </div>
-            <p className="footerTagline">{t("footer.tagline")}</p>
-            <p className="footerTva">{t("footer.tva")}</p>
+            <p className="footerTagline">{c("footer.tagline", "Nancy M. — Coaching, hypnothérapie, thérapie de couple et guidance intuitive-cognitive en distanciel.")}</p>
+            <p className="footerTva">{c("footer.tva", "TVA / BTW : BE0749.913.631")}</p>
           </div>
           {activities && activities.length > 0 && (
             <div className="footerCol">
-              <h3>{t("footer.col_activities")}</h3>
+              <h3>{c("footer.col_activities", "Activités")}</h3>
               <ul>
                 {activities.map((a) => (
                   <li key={a.id}>
@@ -880,18 +901,18 @@ export default function Home() {
             </div>
           )}
           <div className="footerCol">
-            <h3>{t("footer.col_navigation")}</h3>
+            <h3>{c("footer.col_navigation", "Navigation")}</h3>
             <ul>
-              <li><a href="#about" onClick={(e) => { e.preventDefault(); scrollTo("about"); }}>{t("footer.link_about")}</a></li>
-              <li><a href="#approche" onClick={(e) => { e.preventDefault(); scrollTo("approche"); }}>{t("footer.link_approach")}</a></li>
+              <li><a href="#about" onClick={(e) => { e.preventDefault(); scrollTo("about"); }}>{c("footer.link_about", "À propos")}</a></li>
+              <li><a href="#approche" onClick={(e) => { e.preventDefault(); scrollTo("approche"); }}>{c("footer.link_approach", "Démarche")}</a></li>
               {offers && offers.length > 0 && (
-                <li><a href="#tarifs" onClick={(e) => { e.preventDefault(); scrollTo("tarifs"); }}>{t("footer.link_pricing")}</a></li>
+                <li><a href="#tarifs" onClick={(e) => { e.preventDefault(); scrollTo("tarifs"); }}>{c("footer.link_pricing", "Tarifs")}</a></li>
               )}
-              <li><a href="#contact" onClick={(e) => { e.preventDefault(); scrollTo("contact"); }}>{t("footer.link_contact")}</a></li>
+              <li><a href="#contact" onClick={(e) => { e.preventDefault(); scrollTo("contact"); }}>{c("footer.link_contact", "Contact")}</a></li>
             </ul>
           </div>
           <div className="footerCol">
-            <h3>{t("footer.col_contact")}</h3>
+            <h3>{c("footer.col_contact", "Contact")}</h3>
             <ul>
               <li>
                 <a href={phoneHref}>{phone}</a>
@@ -903,8 +924,8 @@ export default function Home() {
           </div>
         </div>
         <div className="footerBottom">
-          <span>{t("footer.copyright")}</span>
-          <span>{t("footer.made")}</span>
+          <span>{c("footer.copyright", "© 2025 Nancy M Therapy")}</span>
+          <span>{c("footer.made", "Fait avec soin 🌿")}</span>
         </div>
       </footer>
     </div>
