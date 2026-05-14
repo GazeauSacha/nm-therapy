@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://nm-therapy.vercel.app/sitemap.xml
+Sitemap: https://nancymtherapy.be/sitemap.xml
